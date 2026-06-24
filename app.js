@@ -1,59 +1,7 @@
 // Application Control Logic for HakimPintar AI Courtroom Simulator
 
-// State Management
-const appState = {
-  currentTab: "tab-overview",
-  currentSession: 1, // 1 to 8
-  dialogueIndex: 0,
-  dialogueHistory: [],
-  cctvEnhanced: false,
-  cctvActiveFilter: "deblur",
-  
-  // Interactive Judge Input State
-  judgeInputSubmitted: false,
-  lastJudgeInput: "",
-  isGeneratingResponse: false,
-  
-  // Leaflet map vars
-  map: null,
-  mapMarkers: [],
-  mapPolyline: null,
-  mapInitialized: false,
-
-  // Mock Active Case data for timeline mapping
-  activeCase: {
-    digitalFootprint: {
-      gpsLogs: [
-        { lat: -6.2088, lng: 106.8456, label: "Log 1 - Kos Menteng", time: "22:45" },
-        { lat: -6.2120, lng: 106.8380, label: "Log 2 - Jl. Rasuna Said", time: "23:05" },
-        { lat: -6.2152, lng: 106.8291, label: "Log 3 - TKP Sudirman", time: "23:15" },
-        { lat: -6.2170, lng: 106.8220, label: "Log 4 - Jl. Gatot Subroto", time: "23:30" },
-        { lat: -6.2088, lng: 106.8456, label: "Log 5 - Kos Menteng", time: "23:50" }
-      ]
-    }
-  },
-
-  // User Decisions / Grading indicators
-  userChoices: {
-    putusanSela: null,      // "tolak-eksepsi" | "terima-eksepsi"
-    cctvVerified: false,
-    gpsVerified: false,
-    selectedVerdict: "",   // "guilty" | "acquitted"
-    selectedArticle: "",   // "pasal-476" | "pasal-479" | "pasal-lain"
-    sentenceType: "",      // "penjara" | "kerja-sosial" | "pengawasan"
-    sentenceValue: 0,
-    legalReasoning: ""
-  },
-  
-  finalScore: 0,
-  evaluationDetails: {
-    evidenceScore: 0,
-    procedureScore: 0,
-    articleScore: 0,
-    sentenceScore: 0,
-    feedback: ""
-  }
-};
+import { appState } from './js/state.js';
+import { fetchFreeLLMResponse } from './js/api.js';
 
 // Initializer
 document.addEventListener("DOMContentLoaded", () => {
@@ -112,6 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // Navigation Controller
+window.switchTab = switchTab;
 function switchTab(tabId) {
   // Hide all tabs
   const tabs = document.querySelectorAll(".tab-content");
@@ -269,37 +218,6 @@ function renderSession() {
   // Show toast notification for new session
   if (appState.currentSession > 1) {
     showToast("Sidang Berlanjut", `Memasuki Sesi ${appState.currentSession}: ${session.title}`, "info");
-  }
-}
-
-// Dynamic Free LLM integration using Pollinations.ai Text API
-async function fetchFreeLLMResponse(speaker, previousSpeaker, previousText, intendedResponse) {
-  const systemPrompt = `Anda sedang bermain peran sebagai ${speaker} dalam simulasi sidang pengadilan pidana Indonesia. 
-Giliran sebelumnya adalah dari ${previousSpeaker}.
-Tujuan utama Anda di giliran ini adalah menyampaikan pesan inti berikut: "${intendedResponse}".
-Bahasakan ulang pesan tersebut dengan gaya bahasa hukum formal Indonesia yang natural dan singkat (maksimal 3 kalimat). Jangan keluar dari karakter.`;
-
-  const messages = [
-    { role: "system", content: systemPrompt },
-    { role: "user", content: `${previousSpeaker} berkata: "${previousText}"\n\nApa respons Anda sebagai ${speaker}?` }
-  ];
-
-  try {
-    const res = await fetch("https://text.pollinations.ai/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        messages: messages,
-        model: "openai",
-        seed: Math.floor(Math.random() * 1000)
-      })
-    });
-    if (!res.ok) throw new Error("LLM API Error");
-    const text = await res.text();
-    return text || intendedResponse;
-  } catch (e) {
-    console.error("Free LLM Failed, falling back to script:", e);
-    return intendedResponse;
   }
 }
 
