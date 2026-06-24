@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="HakimPintar AI adalah simulator peradilan pidana interaktif berbasis Multi-Agent AI. Latih kemampuan hakim pemula dalam menangani perkara pencurian dengan pemberatan menggunakan KUHP 2023 dan KUHAP 2025.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚖️</text></svg>">
+  <title>HakimPintar AI - Simulator Peradilan Pidana Multi-Agent</title>
+  
+  <!-- Leaflet Map CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Ambient Particle Canvas -->
+    <canvas id="particle-canvas" class="particle-canvas"></canvas>
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">⚖️</div>
+        <div class="brand-name">HakimPintar AI</div>
+      </div>
+      
+      <ul class="sidebar-menu">
+        <li class="menu-item active" data-tab="tab-overview">
+          <a href="#overview">
+            <i data-lucide="layout-dashboard"></i>
+            <span>Ringkasan</span>
+          </a>
+        </li>
+        <li class="menu-item" data-tab="tab-courtroom">
+          <a href="#courtroom">
+            <i data-lucide="gavel"></i>
+            <span>Ruang Persidangan</span>
+          </a>
+        </li>
+        <li class="menu-item" data-tab="tab-agents">
+          <a href="#agents">
+            <i data-lucide="users"></i>
+            <span>Profil Peran AI</span>
+          </a>
+        </li>
+        <li class="menu-item" data-tab="tab-comparative">
+          <a href="#comparative">
+            <i data-lucide="library"></i>
+            <span>Komparasi Hukum</span>
+          </a>
+        </li>
+        <li class="menu-item" data-tab="tab-grades">
+          <a href="#grades">
+            <i data-lucide="award"></i>
+            <span>Penilaian Praktikum</span>
+          </a>
+        </li>
+      </ul>
+
+      <!-- Interactive Session Stepper in Sidebar -->
+      <div style="padding: 16px; border-top: 1px solid var(--border-color);">
+        <h5 style="color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.05em;">Progres Persidangan (8 Sesi)</h5>
+        <div class="session-stepper" id="sidebar-stepper">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+      
+      <div class="sidebar-footer">
+        <p>© 2026 HakimPintar AI</p>
+        <p>Edisi Multi-Agent KUHP 2023</p>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      
+      <!-- Top Sticky Header -->
+      <header class="main-header">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <button class="burger-menu" id="sidebar-toggle">
+            <i data-lucide="menu"></i>
+          </button>
+          <h2 class="header-title" id="current-tab-title">Ringkasan Praktikum</h2>
+        </div>
+        <div class="user-badge">
+          <div class="user-status-dot"></div>
+          <span>Hakim Pemula - Mode Simulasi Peradilan</span>
+        </div>
+      </header>
+
+      <!-- Trial Progress Bar -->
+      <div class="trial-progress-bar" id="trial-progress-bar">
+        <div class="trial-progress-fill" id="trial-progress-fill" style="width: 12.5%;"></div>
+      </div>
+
+      <!-- Main Scrollable Body -->
+      <div class="content-body">
+        
+        <!-- 1. TAB OVERVIEW -->
+        <section id="tab-overview" class="tab-content active">
+          <div class="glass-panel card" style="padding: 32px; margin-bottom: 32px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.05)); border-color: rgba(99, 102, 241, 0.2);">
+            <h1 style="font-size: 2.25rem; margin-bottom: 8px;">Simulasi Peradilan Pidana <span class="text-gradient">Multi-Agent AI</span></h1>
+            <p style="color: var(--text-secondary); max-width: 900px; font-size: 1.1rem;">
+              Selamat datang di portal praktikum hakim pemula. Sistem ini mensimulasikan alur persidangan 8 sesi penanganan perkara pencurian dengan pemberatan menggunakan agen AI yang berperan sebagai Jaksa, Penasihat Hukum, Terdakwa, Saksi Korban, dan Saksi Ahli. Terapkan regulasi **KUHP Baru 2023** dan **KUHAP Baru 2025** secara kritis untuk menguji pembuktian digital.
+            </p>
+          </div>
+
+          <div class="grid-3" style="margin-bottom: 32px;">
+            <div class="glass-panel stat-card">
+              <div class="stat-icon"><i data-lucide="play-circle"></i></div>
+              <div class="stat-info">
+                <h4>Sesi Aktif</h4>
+                <p id="stats-current-session">Sesi 1 / 8</p>
+              </div>
+            </div>
+            <div class="glass-panel stat-card">
+              <div class="stat-icon secondary"><i data-lucide="check-square"></i></div>
+              <div class="stat-info">
+                <h4>Keputusan Sela</h4>
+                <p id="stats-sela-verdict">Belum Diputus</p>
+              </div>
+            </div>
+            <div class="glass-panel stat-card">
+              <div class="stat-icon success"><i data-lucide="award"></i></div>
+              <div class="stat-info">
+                <h4>Skor Evaluasi</h4>
+                <p id="stats-final-score">- / 100</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <!-- Instructions and guidelines -->
+            <div class="glass-panel card">
+              <h3 class="card-title"><i data-lucide="list-checks"></i> Petunjuk Praktikum</h3>
+              <ul style="color: var(--text-secondary); padding-left: 20px; font-size: 0.95rem;">
+                <li style="margin-bottom: 8px;">Ikuti alur dialog antar agen AI di tiap sesi persidangan.</li>
+                <li style="margin-bottom: 8px;">Sebagai Hakim Ketua, Anda wajib mengambil tindakan interaktif pada sesi-sesi penting (Putusan Sela, validasi CCTV, analisis lokasi GPS, dan amar putusan).</li>
+                <li style="margin-bottom: 8px;">Pilihan putusan Anda (menerapkan pidana penjara tradisional atau pidana alternatif kerja sosial di KUHP 2023) akan dinilai secara otomatis di akhir praktikum.</li>
+              </ul>
+              <div style="margin-top: 24px;">
+                <button class="btn btn-primary" onclick="switchTab('tab-courtroom')">
+                  Masuk Ruang Sidang <i data-lucide="arrow-right"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Active Case Details -->
+            <div class="glass-panel card">
+              <h3 class="card-title"><i data-lucide="file-text"></i> Perkara Aktif: Pencurian dengan Pemberatan</h3>
+              <table style="width: 100%; border-collapse: collapse; font-size: 0.875rem; color: var(--text-secondary);">
+                <tr style="border-bottom: 1px solid var(--border-color);">
+                  <td style="padding: 8px 0; font-weight: bold;">Terdakwa</td>
+                  <td style="padding: 8px 0; color: white;">Adi Saputra</td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border-color);">
+                  <td style="padding: 8px 0; font-weight: bold;">Dakwaan Utama</td>
+                  <td style="padding: 8px 0; color: white;">Pasal 477 ayat (1) KUHP Baru 2023</td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border-color);">
+                  <td style="padding: 8px 0; font-weight: bold;">Kasus Posisi</td>
+                  <td style="padding: 8px 0; color: white; line-height: 1.4;">Mengambil tas berisi uang Rp 15 juta dari kasir dengan merusak laci minimarket di malam hari.</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. TAB COURTROOM (TRIAL ROOM) -->
+        <section id="tab-courtroom" class="tab-content">
+          <!-- Session Header info -->
+          <div class="glass-panel" style="padding: 20px; margin-bottom: 20px; border-left: 4px solid var(--color-primary);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <span class="badge badge-primary" id="court-session-badge">Sesi 1: Pembacaan Surat Dakwaan</span>
+              <span style="font-size: 0.8rem; color: var(--text-muted);" id="court-session-progress">Langkah 1/5</span>
+            </div>
+            <h3 id="court-session-title" style="color: white; margin-bottom: 6px;">Pembacaan Dakwaan JPU</h3>
+            <p id="court-session-desc" style="color: var(--text-secondary); font-size: 0.875rem;">Jaksa membacakan dakwaan pidana pencurian...</p>
+          </div>
+
+          <div class="grid-2" style="grid-template-columns: 1.2fr 0.8fr;">
+            
+            <!-- Dialogue & Courtroom Visual Panel -->
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+              
+              <!-- Courtroom Layout visual map -->
+              <div class="glass-panel" style="padding: 16px; background: rgba(0,0,0,0.3); border-color: rgba(255,255,255,0.04);">
+                <h4 style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 12px; text-align: center;">Denah Ruang Sidang (Aktif)</h4>
+                
+                <div class="court-layout-grid">
+                  <!-- Hakim (Top center) -->
+                  <div class="court-seat active-speaker" id="seat-hakim">
+                    <div class="seat-role">⚖️ MAJELIS HAKIM</div>
+                    <div class="seat-name" id="seat-name-hakim">Hakim Ketua (Anda)</div>
+                  </div>
+
+                  <!-- JPU (Left) & PH (Right) -->
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin: 15px 0;">
+                    <div class="court-seat" id="seat-jaksa">
+                      <div class="seat-role"> JPU</div>
+                      <div class="seat-name" id="seat-name-jaksa">Reza Utama, S.H.</div>
+                    </div>
+                    <div class="court-seat" id="seat-advokat">
+                      <div class="seat-role"> PENASIHAT HUKUM</div>
+                      <div class="seat-name" id="seat-name-advokat">Farhan Lubis, S.H.</div>
+                    </div>
+                  </div>
+
+                  <!-- Terdakwa / Saksi (Bottom center) -->
+                  <div class="court-seat" id="seat-tengah" style="max-width: 260px; margin: 0 auto;">
+                    <div class="seat-role" id="seat-role-tengah">👤 TERDAKWA</div>
+                    <div class="seat-name" id="seat-name-tengah">Adi Saputra</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Dialogue bubble transcript -->
+              <div class="glass-panel dialogue-panel" style="height: 380px;">
+                <div class="dialogue-history" id="court-dialogue-history">
+                  <!-- Populated by JS -->
+                </div>
+
+                <!-- Human Judge Input Area (Hidden by default) -->
+                <div id="human-judge-input-area" style="display: none; padding: 12px 20px; background: rgba(0,0,0,0.4); border-top: 1px solid var(--border-color); flex-direction: column; gap: 8px;">
+                  <div style="font-size: 0.75rem; color: var(--color-primary); font-weight: bold; text-transform: uppercase;">Giliran Anda (Hakim Ketua)</div>
+                  <div style="display: flex; gap: 10px;">
+                    <input type="text" id="human-judge-input" style="flex: 1; padding: 10px 14px; border-radius: var(--border-radius-sm); border: 1px solid var(--border-color); background: rgba(255,255,255,0.05); color: white; font-size: 0.9rem;" placeholder="Ketik pertanyaan atau tanggapan Anda...">
+                    <button class="btn btn-primary" id="btn-send-judge">Kirim <i data-lucide="send" style="width: 14px; height: 14px; margin-left: 4px;"></i></button>
+                  </div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">
+                    <i data-lucide="lightbulb" style="width: 12px; height: 12px; vertical-align: middle;"></i> Saran Dialog: <span id="judge-suggestion-text" style="cursor: pointer; text-decoration: underline; color: var(--color-secondary);">Gunakan saran</span>
+                  </div>
+                </div>
+
+                <div class="dialogue-prompt-list" id="dialogue-controls-footer" style="background: rgba(0,0,0,0.3); display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 12px 20px;">
+                  <button class="btn btn-secondary" id="btn-prev-dialogue" disabled>
+                    <i data-lucide="chevron-left"></i> Kembali
+                  </button>
+                  <span id="dialogue-index-lbl" style="font-size: 0.85rem; color: var(--text-secondary);">Dialog 1 / 5</span>
+                  <button class="btn btn-primary" id="btn-next-dialogue">
+                    Lanjut Percakapan <i data-lucide="chevron-right"></i>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Interactivity Action Zone -->
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+              
+              <!-- Session Action Widget Container -->
+              <div class="glass-panel card" style="flex-grow: 1; min-height: 480px; display: flex; flex-direction: column;">
+                <h3 class="card-title" id="action-widget-title"><i data-lucide="activity" style="color: var(--color-primary);"></i> Evaluasi Sidang</h3>
+                
+                <div id="action-widget-body" style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center;">
+                  <!-- Dynamic forms based on session. Example: CCTV or GPS or Putusan Sela -->
+                  <p style="color: var(--text-secondary); text-align: center;" id="action-widget-placeholder">
+                    Ikuti dialog di sebelah kiri untuk membuka modul pengujian bukti interaktif.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Smart Legal Assistant Guidance -->
+              <div class="glass-panel" style="padding: 20px; background: var(--color-primary-glow); border-color: rgba(99, 102, 241, 0.2);">
+                <h4 style="color: white; font-size: 0.9rem; margin-bottom: 8px;"><i data-lucide="help-circle" style="vertical-align: middle; margin-right: 6px; color: var(--color-primary);"></i> Panduan Sesi Sidang</h4>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5;" id="court-guideline-text">
+                  Perhatikan rumusan dakwaan JPU. Apakah unsur waktu (malam hari), perusakan kunci laci, dan barang bukti uang Rp 15 juta telah diuraikan secara cermat, jelas, dan lengkap.
+                </p>
+              </div>
+
+            </div>
+
+          </div>
+        </section>
+
+        <!-- 3. TAB AGENT PROFILES -->
+        <section id="tab-agents" class="tab-content">
+
+          <!-- Section hero -->
+          <div class="glass-panel card" style="margin-bottom: 28px; padding: 28px; background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(168,85,247,0.05)); border-color: rgba(99,102,241,0.2);">
+            <h2 style="font-size: 1.75rem; margin-bottom: 8px;">Arsitektur <span class="text-gradient">Multi-Agent AI</span> Persidangan</h2>
+            <p style="color: var(--text-secondary); font-size: 0.95rem; max-width: 860px;">Sistem ini dibangun dengan arsitektur <strong style="color:white;">6 agen AI independen</strong> yang terkoordinasi. Setiap agen memiliki Profile Module, Memory Module (short-term &amp; long-term), Strategy Module, Legal Retriever RAG, dan LLM Engine yang dikonfigurasi sesuai perannya.</p>
+          </div>
+
+          <!-- Agent Roster Summary Table -->
+          <div class="glass-panel card" style="margin-bottom: 28px; padding: 0; overflow: hidden;">
+            <div style="padding: 20px 24px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 10px;">
+              <i data-lucide="table" style="color: var(--color-primary);"></i>
+              <h3 style="font-size: 1.05rem; color: white;">Daftar Agen AI — Fungsi &amp; Model</h3>
+            </div>
+            <div style="overflow-x: auto;">
+              <table id="agent-roster-table" style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">
+                <thead>
+                  <tr style="background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border-color);">
+                    <th style="padding: 12px 20px; text-align: left; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em;">Agen</th>
+                    <th style="padding: 12px 20px; text-align: left; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em;">Fungsi Utama</th>
+                    <th style="padding: 12px 20px; text-align: left; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em;">LLM Model</th>
+                    <th style="padding: 12px 20px; text-align: left; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em;">Suhu</th>
+                  </tr>
+                </thead>
+                <tbody id="agent-roster-tbody">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ARIA Highlight Banner -->
+          <div class="glass-panel" style="margin-bottom: 28px; padding: 22px 28px; display: flex; gap: 20px; align-items: center; background: linear-gradient(135deg, rgba(168,85,247,0.12), rgba(99,102,241,0.06)); border-color: rgba(168,85,247,0.3);">
+            <div style="font-size: 2.5rem; flex-shrink:0;">🤖</div>
+            <div>
+              <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                <h3 style="color: white; font-size: 1.1rem;">ARIA — AI Judicial Assistant</h3>
+                <span class="badge badge-secondary">NEW</span>
+                <span class="badge" style="background: rgba(99,102,241,0.15); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.3); font-size: 0.65rem;">Claude Sonnet · Thinking Mode</span>
+              </div>
+              <p style="color: var(--text-secondary); font-size: 0.875rem; line-height: 1.5; max-width: 900px;">Hakim Asisten AI berbasis <strong style="color:#c084fc">Claude Sonnet (Extended Thinking)</strong> yang beroperasi di balik layar. ARIA secara otomatis melakukan <em>cross-referencing</em> antara keterangan saksi, log GPS/BTS, nilai hash CCTV, dan corpus KUHP 2023 / KUHAP 2025 — kemudian menyajikan draft konsideran putusan yang terstruktur kepada Hakim Ketua.</p>
+            </div>
+          </div>
+
+          <!-- Detailed Agent Architecture Cards -->
+          <div style="margin-bottom: 16px; font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; letter-spacing: 0.06em;">Detail Arsitektur per Agen</div>
+          <div class="grid-2" id="agents-cards-container">
+            <!-- Populated by JS -->
+          </div>
+        </section>
+
+        <!-- 4. TAB COMPARATIVE LAW -->
+        <section id="tab-comparative" class="tab-content">
+          <div style="margin-bottom: 24px;">
+            <p style="color: var(--text-secondary);">Pahami perbedaan krusial penerapan Kitab Undang-Undang Hukum Pidana (KUHP) Baru 2023 dan Kitab Undang-Undang Hukum Acara Pidana (KUHAP) Baru 2025.</p>
+          </div>
+          
+          <div class="grid-2">
+            <!-- KUHP Comparative -->
+            <div class="glass-panel card">
+              <h3 class="card-title"><i data-lucide="scale" style="color: var(--color-primary);"></i> Reformasi KUHP Baru (UU 1/2023)</h3>
+              <div class="library-accordion" id="kuhp-comparative-container">
+                <!-- Populated by JS -->
+              </div>
+            </div>
+
+            <!-- KUHAP Comparative -->
+            <div class="glass-panel card">
+              <h3 class="card-title"><i data-lucide="book-open" style="color: var(--color-secondary);"></i> Reformasi Hukum Acara (KUHAP 2025)</h3>
+              <div class="library-accordion" id="kuhap-comparative-container">
+                <!-- Populated by JS -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 5. TAB GRADES (EVALUATION REPORT) -->
+        <section id="tab-grades" class="tab-content">
+          <div class="glass-panel card" style="margin-bottom: 32px;">
+            <h3 class="card-title"><i data-lucide="award" style="color: var(--color-success);"></i> Laporan Penilaian Praktikum Hakim</h3>
+            <p class="card-subtitle">
+              Sistem mengevaluasi putusan akhir dan keaktifan Anda menilai keabsahan bukti digital di persidangan berdasarkan instrumen objektif.
+            </p>
+
+            <div class="grid-2" style="grid-template-columns: 0.8fr 1.2fr; gap: 32px; margin-top: 24px;">
+              <!-- Score breakdown list -->
+              <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; border-right: 1px solid var(--border-color); padding-right: 32px;">
+                <div class="score-ring-container" id="grades-score-ring">
+                  <svg class="score-ring-svg" viewBox="0 0 140 140">
+                    <defs>
+                      <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="var(--color-primary)" />
+                        <stop offset="100%" stop-color="var(--color-success)" />
+                      </linearGradient>
+                    </defs>
+                    <circle class="score-ring-bg" cx="70" cy="70" r="62" />
+                    <circle class="score-ring-fill" id="score-ring-circle" cx="70" cy="70" r="62" 
+                      stroke-dasharray="389.56" stroke-dashoffset="389.56" />
+                  </svg>
+                  <div class="score-ring-text">
+                    <span class="score-ring-value" id="grades-final-score-lbl">-</span>
+                    <span class="score-ring-label">SKOR TOTAL</span>
+                  </div>
+                </div>
+                <h4 style="color: white; margin-bottom: 4px;" id="grades-judgment-status">Belum Menyelesaikan Sidang</h4>
+                <p style="font-size: 0.8rem; color: var(--text-muted); text-align: center;">Selesaikan Sesi 8 (Putusan Akhir) untuk memicu penilaian otomatis.</p>
+              </div>
+
+              <!-- Rubric scores progress -->
+              <div style="display: flex; flex-direction: column; gap: 20px;">
+                <!-- Rubric 1 -->
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 0.875rem; margin-bottom: 6px;">
+                    <span style="color: white; font-weight: 600;">1. Evaluasi Bukti Digital & AI (30%)</span>
+                    <span style="color: var(--color-primary);" id="rubric-score-1">- / 30</span>
+                  </div>
+                  <div style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden;">
+                    <div style="width: 0%; height: 100%; background: var(--color-primary); transition: var(--transition-smooth);" id="rubric-bar-1"></div>
+                  </div>
+                </div>
+
+                <!-- Rubric 2 -->
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 0.875rem; margin-bottom: 6px;">
+                    <span style="color: white; font-weight: 600;">2. Kepatuhan Hukum Acara KUHAP 2025 (20%)</span>
+                    <span style="color: var(--color-secondary);" id="rubric-score-2">- / 20</span>
+                  </div>
+                  <div style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden;">
+                    <div style="width: 0%; height: 100%; background: var(--color-secondary); transition: var(--transition-smooth);" id="rubric-bar-2"></div>
+                  </div>
+                </div>
+
+                <!-- Rubric 3 -->
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 0.875rem; margin-bottom: 6px;">
+                    <span style="color: white; font-weight: 600;">3. Penerapan Pasal KUHP Baru 2023 (25%)</span>
+                    <span style="color: var(--color-success);" id="rubric-score-3">- / 25</span>
+                  </div>
+                  <div style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden;">
+                    <div style="width: 0%; height: 100%; background: var(--color-success); transition: var(--transition-smooth);" id="rubric-bar-3"></div>
+                  </div>
+                </div>
+
+                <!-- Rubric 4 -->
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 0.875rem; margin-bottom: 6px;">
+                    <span style="color: white; font-weight: 600;">4. Keadilan & Proporsionalitas Hukuman (25%)</span>
+                    <span style="color: var(--color-warning);" id="rubric-score-4">- / 25</span>
+                  </div>
+                  <div style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden;">
+                    <div style="width: 0%; height: 100%; background: var(--color-warning); transition: var(--transition-smooth);" id="rubric-bar-4"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Detailed feedback section -->
+          <div class="glass-panel card" id="grades-feedback-card" style="display: none;">
+            <h3 class="card-title"><i data-lucide="file-check-2" style="color: var(--color-primary);"></i> Catatan Rekomendasi Dewan Penguji</h3>
+            <div id="grades-feedback-text" style="color: var(--text-secondary); line-height: 1.7; font-size: 0.95rem;">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+  </div>
+
+  <!-- Gavel Animation Overlay -->
+  <div class="gavel-overlay" id="gavel-overlay">
+    <div class="gavel-content">
+      <div class="gavel-icon">⚖️</div>
+      <div class="gavel-text" id="gavel-text">PUTUSAN DIJATUHKAN</div>
+      <div class="gavel-sub" id="gavel-sub"></div>
+    </div>
+  </div>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Leaflet Map JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <!-- Application Data and Scripts -->
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
