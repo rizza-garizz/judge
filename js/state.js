@@ -36,7 +36,7 @@ export const appState = {
     cctvVerified: false,
     gpsVerified: false,
     selectedVerdict: "",   // "guilty" | "acquitted"
-    selectedArticle: "",   // "pasal-476" | "pasal-479" | "pasal-lain"
+    selectedArticle: "",   // "pasal-476" | "pasal-477" | "pasal-lain"
     sentenceType: "",      // "penjara" | "kerja-sosial" | "pengawasan"
     sentenceValue: 0,
     legalReasoning: ""

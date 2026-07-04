@@ -1,4 +1,6 @@
 export async function fetchFreeLLMResponse(speaker, previousSpeaker, previousText, intendedResponse) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000);
   const systemPrompt = `Anda sedang bermain peran sebagai ${speaker} dalam simulasi sidang pengadilan pidana Indonesia. 
 Giliran sebelumnya adalah dari ${previousSpeaker}.
 Tujuan utama Anda di giliran ini adalah menyampaikan pesan inti berikut: "${intendedResponse}".
@@ -13,6 +15,7 @@ Bahasakan ulang pesan tersebut dengan gaya bahasa hukum formal Indonesia yang na
     const res = await fetch("https://text.pollinations.ai/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      signal: controller.signal,
       body: JSON.stringify({
         messages: messages,
         model: "openai",
@@ -25,5 +28,7 @@ Bahasakan ulang pesan tersebut dengan gaya bahasa hukum formal Indonesia yang na
   } catch (e) {
     console.error("Free LLM Failed, falling back to script:", e);
     return intendedResponse;
+  } finally {
+    clearTimeout(timeoutId);
   }
 }

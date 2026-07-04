@@ -26,6 +26,10 @@ Aplikasi ini berjalan sepenuhnya di sisi klien (Client-Side) dan menggunakan pen
 
 Aplikasi ini dapat dijalankan langsung di browser mana pun tanpa instalasi tambahan.
 
+## 🧭 Launch Readiness
+
+Catatan audit Fase 0 dan hardening Fase 1 tersedia di [`docs/phase-0-1-launch-readiness.md`](docs/phase-0-1-launch-readiness.md). Versi saat ini sudah menambahkan persistence lokal, reset simulasi, timeout fallback AI, dan rendering dialog yang lebih aman, namun masih membutuhkan backend, validasi ahli hukum, audit keamanan, dan testing end-to-end sebelum dipakai sebagai produk enterprise.
+
 ### Opsi 1: Menjalankan Langsung (Local)
 1. *Clone* repositori ini:
    ```bash

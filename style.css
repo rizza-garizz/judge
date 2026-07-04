@@ -286,12 +286,29 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 0.875rem;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-reset-session {
+  padding: 7px 12px;
+  font-size: 0.8rem;
+}
+
 .user-status-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
   background-color: var(--color-success);
   box-shadow: 0 0 10px var(--color-success);
+}
+
+@media (max-width: 768px) {
+  .header-actions .user-badge span {
+    display: none;
+  }
 }
 
 /* Content Container */

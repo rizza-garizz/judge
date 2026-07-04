@@ -3,10 +3,31 @@
 import { appState } from './js/state.js';
 import { fetchFreeLLMResponse } from './js/api.js';
 
+const STORAGE_KEY = "hakimpintar.simulation.v1";
+const DEFAULT_USER_CHOICES = {
+  putusanSela: null,
+  cctvVerified: false,
+  gpsVerified: false,
+  selectedVerdict: "",
+  selectedArticle: "",
+  sentenceType: "",
+  sentenceValue: 0,
+  legalReasoning: ""
+};
+const DEFAULT_EVALUATION_DETAILS = {
+  evidenceScore: 0,
+  procedureScore: 0,
+  articleScore: 0,
+  sentenceScore: 0,
+  feedback: ""
+};
+
 // Initializer
 document.addEventListener("DOMContentLoaded", () => {
   // Initialize Lucide Icons
   lucide.createIcons();
+
+  loadPersistedState();
   
   // Init Ambient Particles
   initParticles();
@@ -33,6 +54,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  const resetBtn = document.getElementById("btn-reset-simulation");
+  if (resetBtn) {
+    resetBtn.addEventListener("click", resetSimulation);
+  }
+
   // Dialogue Controls
   document.getElementById("btn-next-dialogue").addEventListener("click", advanceDialogue);
   document.getElementById("btn-prev-dialogue").addEventListener("click", regressDialogue);
@@ -54,6 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderAgentProfiles();
   renderComparativeLaws();
   renderSession();
+  syncSummaryFromState();
   
   // Deep-linking based on URL hashes
   handleHashRouting();
@@ -94,6 +121,10 @@ function switchTab(tabId) {
   document.getElementById("current-tab-title").innerText = tabTitles[tabId] || "HakimPintar AI";
   appState.currentTab = tabId;
 
+  if (tabId === "tab-grades" && appState.finalScore > 0) {
+    renderGradesTab(false);
+  }
+
   // Close mobile sidebar if open
   document.querySelector(".sidebar").classList.remove("active");
 
@@ -106,6 +137,117 @@ function switchTab(tabId) {
 
   // Smooth scroll to top of main content
   document.querySelector(".main-content").scrollTop = 0;
+}
+
+function loadPersistedState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+
+    const saved = JSON.parse(raw);
+    const savedSession = Number(saved.currentSession);
+    if (Number.isInteger(savedSession) && savedSession >= 1 && savedSession <= TRIAL_SESSIONS.length) {
+      appState.currentSession = savedSession;
+    }
+
+    appState.cctvEnhanced = Boolean(saved.cctvEnhanced);
+    appState.cctvActiveFilter = saved.cctvActiveFilter === "resolution" ? "resolution" : "deblur";
+    appState.userChoices = {
+      ...DEFAULT_USER_CHOICES,
+      ...(saved.userChoices || {})
+    };
+    appState.finalScore = Number(saved.finalScore) || 0;
+    appState.evaluationDetails = {
+      ...DEFAULT_EVALUATION_DETAILS,
+      evidenceScore: Number(saved.evaluationDetails?.evidenceScore) || 0,
+      procedureScore: Number(saved.evaluationDetails?.procedureScore) || 0,
+      articleScore: Number(saved.evaluationDetails?.articleScore) || 0,
+      sentenceScore: Number(saved.evaluationDetails?.sentenceScore) || 0,
+      feedback: ""
+    };
+  } catch (error) {
+    console.warn("Saved simulation state ignored:", error);
+    clearPersistedState();
+  }
+}
+
+function persistState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      currentSession: appState.currentSession,
+      cctvEnhanced: appState.cctvEnhanced,
+      cctvActiveFilter: appState.cctvActiveFilter,
+      userChoices: appState.userChoices,
+      finalScore: appState.finalScore,
+      evaluationDetails: appState.evaluationDetails
+    }));
+  } catch (error) {
+    console.warn("Simulation state could not be saved:", error);
+  }
+}
+
+function resetSimulation() {
+  clearPersistedState();
+
+  appState.currentTab = "tab-overview";
+  appState.currentSession = 1;
+  appState.dialogueIndex = 0;
+  appState.dialogueHistory = [];
+  appState.cctvEnhanced = false;
+  appState.cctvActiveFilter = "deblur";
+  appState.judgeInputSubmitted = false;
+  appState.lastJudgeInput = "";
+  appState.isGeneratingResponse = false;
+  appState.userChoices = { ...DEFAULT_USER_CHOICES };
+  appState.finalScore = 0;
+  appState.evaluationDetails = { ...DEFAULT_EVALUATION_DETAILS };
+
+  if (appState.map) {
+    appState.map.remove();
+    appState.map = null;
+  }
+  appState.mapMarkers = [];
+  appState.mapPolyline = null;
+  appState.mapInitialized = false;
+
+  const feedbackCard = document.getElementById("grades-feedback-card");
+  if (feedbackCard) feedbackCard.style.display = "none";
+  document.getElementById("stats-sela-verdict").innerText = "Belum Diputus";
+  document.getElementById("stats-final-score").innerText = "- / 100";
+  document.getElementById("grades-final-score-lbl").innerText = "-";
+  document.getElementById("grades-judgment-status").innerText = "Belum Menyelesaikan Sidang";
+
+  ["1", "2", "3", "4"].forEach((idx) => {
+    const bar = document.getElementById(`rubric-bar-${idx}`);
+    if (bar) bar.style.width = "0%";
+    const score = document.getElementById(`rubric-score-${idx}`);
+    if (score) score.innerText = idx === "1" ? "- / 30" : idx === "2" ? "- / 20" : "- / 25";
+  });
+
+  initSidebarStepper();
+  renderSession();
+  switchTab("tab-overview");
+  showToast("Simulasi Direset", "Progres lokal sudah dikosongkan dan sidang kembali ke sesi pertama.", "info");
+}
+
+function clearPersistedState() {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch (error) {
+    console.warn("Simulation state could not be cleared:", error);
+  }
+}
+
+function syncSummaryFromState() {
+  const selaLabel = document.getElementById("stats-sela-verdict");
+  if (selaLabel && appState.userChoices.putusanSela) {
+    selaLabel.innerText = appState.userChoices.putusanSela === "tolak-eksepsi" ? "Eksepsi Ditolak" : "Eksepsi Diterima";
+  }
+
+  const finalLabel = document.getElementById("stats-final-score");
+  if (finalLabel && appState.finalScore > 0) {
+    finalLabel.innerText = `${appState.finalScore} / 100`;
+  }
 }
 
 function handleHashRouting() {
@@ -160,6 +302,7 @@ function jumpToSession(sessionNumber) {
   appState.currentSession = sessionNumber;
   appState.dialogueIndex = 0;
   appState.dialogueHistory = [];
+  persistState();
   initSidebarStepper();
   renderSession();
 }
@@ -287,14 +430,21 @@ async function advanceDialogue(isInitial = false) {
     // Typing indicator
     const typingIndicator = document.createElement("div");
     typingIndicator.className = "dialogue-bubble-container received";
-    typingIndicator.innerHTML = `
-      <div class="dialogue-speaker-lbl">${dialogue.speaker}</div>
-      <div class="dialogue-bubble" style="background: transparent; border: none; padding: 0;">
-        <div class="typing-dots">
-          <span></span><span></span><span></span>
-        </div>
+    const typingSpeaker = document.createElement("div");
+    typingSpeaker.className = "dialogue-speaker-lbl";
+    typingSpeaker.textContent = dialogue.speaker;
+    const typingBubble = document.createElement("div");
+    typingBubble.className = "dialogue-bubble";
+    typingBubble.style.background = "transparent";
+    typingBubble.style.border = "none";
+    typingBubble.style.padding = "0";
+    typingBubble.innerHTML = `
+      <div class="typing-dots">
+        <span></span><span></span><span></span>
       </div>
     `;
+    typingIndicator.appendChild(typingSpeaker);
+    typingIndicator.appendChild(typingBubble);
     historyContainer.appendChild(typingIndicator);
     historyContainer.scrollTop = historyContainer.scrollHeight;
 
@@ -326,13 +476,17 @@ async function advanceDialogue(isInitial = false) {
 
   const bubbleDiv = document.createElement("div");
   bubbleDiv.className = `dialogue-bubble-container ${senderType}`;
-  
-  bubbleDiv.innerHTML = `
-    <div class="dialogue-speaker-lbl">${dialogue.speaker}</div>
-    <div class="dialogue-bubble">
-      ${bubbleText}
-    </div>
-  `;
+
+  const speakerLabel = document.createElement("div");
+  speakerLabel.className = "dialogue-speaker-lbl";
+  speakerLabel.textContent = dialogue.speaker;
+
+  const bubbleBody = document.createElement("div");
+  bubbleBody.className = "dialogue-bubble";
+  bubbleBody.textContent = bubbleText;
+
+  bubbleDiv.appendChild(speakerLabel);
+  bubbleDiv.appendChild(bubbleBody);
   
   historyContainer.appendChild(bubbleDiv);
   historyContainer.scrollTop = historyContainer.scrollHeight;
@@ -450,6 +604,7 @@ function completeSession() {
   appState.currentSession++;
   appState.dialogueIndex = 0;
   appState.dialogueHistory = [];
+  persistState();
   
   initSidebarStepper();
   renderSession();
@@ -567,6 +722,7 @@ function loadActionWidget() {
         setTimeout(() => {
           appState.cctvEnhanced = true;
           appState.userChoices.cctvVerified = true;
+          persistState();
           btn.innerHTML = `<i data-lucide="check-circle"></i> Selesai`;
           lucide.createIcons();
           document.getElementById("cctv-action-hash-res").innerText = "d41e21b0...a9f2";
@@ -807,6 +963,7 @@ function applyMosaicBounds(ctx, x, y, w, h, size) {
 function selectPutusanSela(choiceId) {
   appState.userChoices.putusanSela = choiceId;
   document.getElementById("stats-sela-verdict").innerText = choiceId === "tolak-eksepsi" ? "Eksepsi Ditolak" : "Eksepsi Diterima";
+  persistState();
   
   // Reload widget to show feedback text
   loadActionWidget();
@@ -890,6 +1047,7 @@ function updateActionMapTimeline(val) {
   else if (val === 2) {
     desc = "Ponsel berada di TKP (Sudirman) pukul 23:15. Ini membantah alibi!";
     appState.userChoices.gpsVerified = true; // Mark as verified once they check TKP
+    persistState();
   }
   else if (val === 3) desc = "Ponsel bergerak melaju meninggalkan TKP.";
   else if (val === 4) desc = "Ponsel kembali terdeteksi di area Kos Menteng.";
@@ -933,6 +1091,7 @@ function submitFinalVerdict() {
     appState.userChoices.sentenceType = type;
     appState.userChoices.sentenceValue = val;
     appState.userChoices.legalReasoning = reasoning;
+    persistState();
 
     // Calculate scores
     calculatePracticeGrades();
@@ -945,8 +1104,6 @@ function calculatePracticeGrades() {
   let scoreArticle = 0;    // Max 25
   let scoreSentence = 0;   // Max 25
   
-  let feedbackText = "";
-
   // 1. Evidence Verification score (CCTV and GPS slider checks)
   if (appState.userChoices.cctvVerified) scoreEvidence += 15;
   if (appState.userChoices.gpsVerified) scoreEvidence += 15;
@@ -962,7 +1119,7 @@ function calculatePracticeGrades() {
   }
 
   // 3. Article Application (Theft with weight night-time + damage vs simple theft)
-  // The correct article is Pasal 479 (Pencurian dengan Pemberatan) because it happened at night (23:15) and involved damage (merusak laci dengan obeng).
+  // The correct article is Pasal 477 (Pencurian dengan Pemberatan) because it happened at night (23:15) and involved damage (merusak laci dengan obeng).
   if (appState.userChoices.selectedArticle === "pasal-477") {
     scoreArticle = 25;
   } else if (appState.userChoices.selectedArticle === "pasal-476") {
@@ -975,7 +1132,7 @@ function calculatePracticeGrades() {
   // Terdakwa has no criminal record (Pledoi) and value stolen is Rp 15 million.
   // Prison remains legal, but under new KUHP 2023, for offenses where sentence is under 5 years,
   // Alternative punishments (Pidana Kerja Sosial or Pidana Pengawasan) are preferred.
-  // Chosing Prison (penjara) gives 15 pts. Chosing Kerja Sosial or Pengawasan gives 25 pts (modern Restorative Justice).
+  // Choosing Prison (penjara) gives 15 pts. Choosing Kerja Sosial or Pengawasan gives 25 pts (modern Restorative Justice).
   if (appState.userChoices.selectedVerdict === "guilty") {
     if (appState.userChoices.sentenceType === "kerja-sosial" || appState.userChoices.sentenceType === "pengawasan") {
       scoreSentence = 25; // Aligns with KUHP 2023 policy
@@ -992,29 +1149,30 @@ function calculatePracticeGrades() {
   const totalScore = scoreEvidence + scoreProcedure + scoreArticle + scoreSentence;
   appState.finalScore = totalScore;
 
-  // Write feedback reports
-  feedbackText = `<h4>Analisis Putusan Anda:</h4><br>
-    <ul>
-      <li><strong>Skor Alat Bukti: ${scoreEvidence}/30</strong> - ${scoreEvidence === 30 ? 'Luar biasa! Anda menguji integritas CCTV hasil olahan AI dengan memeriksa nilai hash dan memetakan alibi menggunakan timeline GPS/BTS seluler.' : 'Anda melewatkan langkah pengujian kritis pada CCTV atau GPS.'}</li>
-      <li><strong>Hukum Acara (KUHAP 2025): ${scoreProcedure}/20</strong> - Anda memilih keputusan sela: <em>${appState.userChoices.putusanSela === 'terima-eksepsi' ? 'Menerima Eksepsi' : 'Menolak Eksepsi'}</em>. ${appState.userChoices.putusanSela === 'terima-eksepsi' ? 'Ini menunjukkan kepatuhan tinggi terhadap kepastian formil Pasal 91 KUHAP 2025.' : 'Anda memprioritaskan keadilan materiil untuk memeriksa pokok perkara meskipun ada pelanggaran durasi penyitaan.'}</li>
-      <li><strong>Penerapan Pasal (KUHP 2023): ${scoreArticle}/25</strong> - ${appState.userChoices.selectedArticle === 'pasal-477' ? 'Tepat! Anda menjerat terdakwa dengan Pasal 477 ayat (1) karena terdapat unsur pencurian malam hari dan perusakan laci.' : 'Kurang tepat. Unsur perusakan kunci laci dan waktu malam hari memenuhi syarat pemberatan (Pasal 477) bukan pencurian biasa.'}</li>
-      <li><strong>Pedoman Pemidanaan Baru: ${scoreSentence}/25</strong> - ${scoreSentence === 25 ? 'Sangat bagus. Anda menerapkan pidana alternatif (Kerja Sosial/Pengawasan) sesuai nafas restoratif KUHP Baru 2023 untuk memulihkan keadaan terdakwa non-resividis.' : 'Hukuman penjara kurungan langsung dinilai kurang efisien untuk pencurian non-kekerasan skala kecil di bawah KUHP 2023.'}</li>
-    </ul>`;
-
   // Update states
   appState.evaluationDetails = {
     evidenceScore: scoreEvidence,
     procedureScore: scoreProcedure,
     articleScore: scoreArticle,
     sentenceScore: scoreSentence,
-    feedback: feedbackText
+    feedback: buildFeedbackText(scoreEvidence, scoreProcedure, scoreArticle, scoreSentence)
   };
+  persistState();
 
   // Render Grade Report UI
   renderGradesTab();
 }
 
-function renderGradesTab() {
+function renderGradesTab(shouldSwitchTab = true) {
+  if (!appState.evaluationDetails.feedback) {
+    appState.evaluationDetails.feedback = buildFeedbackText(
+      appState.evaluationDetails.evidenceScore,
+      appState.evaluationDetails.procedureScore,
+      appState.evaluationDetails.articleScore,
+      appState.evaluationDetails.sentenceScore
+    );
+  }
+
   document.getElementById("stats-final-score").innerText = `${appState.finalScore} / 100`;
 
   // Draw Scores
@@ -1079,8 +1237,19 @@ function renderGradesTab() {
   card.style.display = "block";
   document.getElementById("grades-feedback-text").innerHTML = appState.evaluationDetails.feedback;
 
-  // Auto direct to Grades Tab
-  switchTab("tab-grades");
+  if (shouldSwitchTab) {
+    switchTab("tab-grades");
+  }
+}
+
+function buildFeedbackText(scoreEvidence, scoreProcedure, scoreArticle, scoreSentence) {
+  return `<h4>Analisis Putusan Anda:</h4><br>
+    <ul>
+      <li><strong>Skor Alat Bukti: ${scoreEvidence}/30</strong> - ${scoreEvidence === 30 ? 'Luar biasa! Anda menguji integritas CCTV hasil olahan AI dengan memeriksa nilai hash dan memetakan alibi menggunakan timeline GPS/BTS seluler.' : 'Anda melewatkan langkah pengujian kritis pada CCTV atau GPS.'}</li>
+      <li><strong>Hukum Acara (KUHAP 2025): ${scoreProcedure}/20</strong> - Anda memilih keputusan sela: <em>${appState.userChoices.putusanSela === 'terima-eksepsi' ? 'Menerima Eksepsi' : 'Menolak Eksepsi'}</em>. ${appState.userChoices.putusanSela === 'terima-eksepsi' ? 'Ini menunjukkan kepatuhan tinggi terhadap kepastian formil Pasal 91 KUHAP 2025.' : 'Anda memprioritaskan keadilan materiil untuk memeriksa pokok perkara meskipun ada pelanggaran durasi penyitaan.'}</li>
+      <li><strong>Penerapan Pasal (KUHP 2023): ${scoreArticle}/25</strong> - ${appState.userChoices.selectedArticle === 'pasal-477' ? 'Tepat! Anda menjerat terdakwa dengan Pasal 477 ayat (1) karena terdapat unsur pencurian malam hari dan perusakan laci.' : 'Kurang tepat. Unsur perusakan kunci laci dan waktu malam hari memenuhi syarat pemberatan (Pasal 477) bukan pencurian biasa.'}</li>
+      <li><strong>Pedoman Pemidanaan Baru: ${scoreSentence}/25</strong> - ${scoreSentence === 25 ? 'Sangat bagus. Anda menerapkan pidana alternatif (Kerja Sosial/Pengawasan) sesuai nafas restoratif KUHP Baru 2023 untuk memulihkan keadaan terdakwa non-resividis.' : 'Hukuman penjara kurungan langsung dinilai kurang efisien untuk pencurian non-kekerasan skala kecil di bawah KUHP 2023.'}</li>
+    </ul>`;
 }
 
 // --- Utilities & UI Polish System ---
@@ -1106,13 +1275,26 @@ function showToast(title, message, type = 'info') {
 
   const toast = document.createElement('div');
   toast.className = `toast toast-${type}`;
-  toast.innerHTML = `
-    <div class="toast-icon">${icons[type] || icons.info}</div>
-    <div class="toast-body">
-      <div class="toast-title">${title}</div>
-      <div class="toast-msg">${message}</div>
-    </div>
-  `;
+
+  const icon = document.createElement('div');
+  icon.className = "toast-icon";
+  icon.innerHTML = icons[type] || icons.info;
+
+  const body = document.createElement('div');
+  body.className = "toast-body";
+
+  const titleEl = document.createElement('div');
+  titleEl.className = "toast-title";
+  titleEl.textContent = title;
+
+  const messageEl = document.createElement('div');
+  messageEl.className = "toast-msg";
+  messageEl.textContent = message;
+
+  body.appendChild(titleEl);
+  body.appendChild(messageEl);
+  toast.appendChild(icon);
+  toast.appendChild(body);
 
   container.appendChild(toast);
   lucide.createIcons();
