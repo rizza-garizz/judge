@@ -30,6 +30,14 @@ Aplikasi ini dapat dijalankan langsung di browser mana pun tanpa instalasi tamba
 
 Catatan audit Fase 0 dan hardening Fase 1 tersedia di [`docs/phase-0-1-launch-readiness.md`](docs/phase-0-1-launch-readiness.md). Versi saat ini sudah menambahkan persistence lokal, reset simulasi, timeout fallback AI, dan rendering dialog yang lebih aman, namun masih membutuhkan backend, validasi ahli hukum, audit keamanan, dan testing end-to-end sebelum dipakai sebagai produk enterprise.
 
+Pondasi produk Fase 2 tersedia di [`docs/phase-2-product-foundation.md`](docs/phase-2-product-foundation.md). Backend development dapat dijalankan dengan:
+
+```bash
+npm run dev
+```
+
+Buka `http://127.0.0.1:4000` untuk menjalankan frontend melalui backend dan menyimpan progres ke storage development.
+
 ### Opsi 1: Menjalankan Langsung (Local)
 1. *Clone* repositori ini:
    ```bash

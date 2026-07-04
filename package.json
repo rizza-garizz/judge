@@ -1,0 +1,14 @@
+{
+  "name": "hakimpintar-ai",
+  "version": "0.2.0",
+  "private": true,
+  "description": "HakimPintar AI courtroom simulator with launch-readiness backend foundation.",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "node backend/server.js",
+    "check": "node --check app.js && node --check js/api.js && node --check backend/server.js && node --check backend/storage.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

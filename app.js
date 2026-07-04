@@ -1,7 +1,12 @@
 // Application Control Logic for HakimPintar AI Courtroom Simulator
 
 import { appState } from './js/state.js';
-import { fetchFreeLLMResponse } from './js/api.js';
+import {
+  fetchBackendSimulation,
+  fetchFreeLLMResponse,
+  resetBackendSimulation,
+  saveBackendSimulation
+} from './js/api.js';
 
 const STORAGE_KEY = "hakimpintar.simulation.v1";
 const DEFAULT_USER_CHOICES = {
@@ -81,6 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderComparativeLaws();
   renderSession();
   syncSummaryFromState();
+  syncStateFromBackend();
   
   // Deep-linking based on URL hashes
   handleHashRouting();
@@ -144,50 +150,80 @@ function loadPersistedState() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return;
 
-    const saved = JSON.parse(raw);
-    const savedSession = Number(saved.currentSession);
-    if (Number.isInteger(savedSession) && savedSession >= 1 && savedSession <= TRIAL_SESSIONS.length) {
-      appState.currentSession = savedSession;
-    }
-
-    appState.cctvEnhanced = Boolean(saved.cctvEnhanced);
-    appState.cctvActiveFilter = saved.cctvActiveFilter === "resolution" ? "resolution" : "deblur";
-    appState.userChoices = {
-      ...DEFAULT_USER_CHOICES,
-      ...(saved.userChoices || {})
-    };
-    appState.finalScore = Number(saved.finalScore) || 0;
-    appState.evaluationDetails = {
-      ...DEFAULT_EVALUATION_DETAILS,
-      evidenceScore: Number(saved.evaluationDetails?.evidenceScore) || 0,
-      procedureScore: Number(saved.evaluationDetails?.procedureScore) || 0,
-      articleScore: Number(saved.evaluationDetails?.articleScore) || 0,
-      sentenceScore: Number(saved.evaluationDetails?.sentenceScore) || 0,
-      feedback: ""
-    };
+    applyPersistedSnapshot(JSON.parse(raw));
   } catch (error) {
     console.warn("Saved simulation state ignored:", error);
     clearPersistedState();
   }
 }
 
+function buildStateSnapshot() {
+  return {
+    currentSession: appState.currentSession,
+    cctvEnhanced: appState.cctvEnhanced,
+    cctvActiveFilter: appState.cctvActiveFilter,
+    userChoices: appState.userChoices,
+    finalScore: appState.finalScore,
+    evaluationDetails: {
+      evidenceScore: appState.evaluationDetails.evidenceScore,
+      procedureScore: appState.evaluationDetails.procedureScore,
+      articleScore: appState.evaluationDetails.articleScore,
+      sentenceScore: appState.evaluationDetails.sentenceScore
+    }
+  };
+}
+
+function applyPersistedSnapshot(saved) {
+  if (!saved || typeof saved !== "object") return;
+
+  const savedSession = Number(saved.currentSession);
+  if (Number.isInteger(savedSession) && savedSession >= 1 && savedSession <= TRIAL_SESSIONS.length) {
+    appState.currentSession = savedSession;
+  }
+
+  appState.cctvEnhanced = Boolean(saved.cctvEnhanced);
+  appState.cctvActiveFilter = saved.cctvActiveFilter === "resolution" ? "resolution" : "deblur";
+  appState.userChoices = {
+    ...DEFAULT_USER_CHOICES,
+    ...(saved.userChoices || {})
+  };
+  appState.finalScore = Number(saved.finalScore) || 0;
+  appState.evaluationDetails = {
+    ...DEFAULT_EVALUATION_DETAILS,
+    evidenceScore: Number(saved.evaluationDetails?.evidenceScore) || 0,
+    procedureScore: Number(saved.evaluationDetails?.procedureScore) || 0,
+    articleScore: Number(saved.evaluationDetails?.articleScore) || 0,
+    sentenceScore: Number(saved.evaluationDetails?.sentenceScore) || 0,
+    feedback: ""
+  };
+}
+
 function persistState() {
+  const snapshot = buildStateSnapshot();
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      currentSession: appState.currentSession,
-      cctvEnhanced: appState.cctvEnhanced,
-      cctvActiveFilter: appState.cctvActiveFilter,
-      userChoices: appState.userChoices,
-      finalScore: appState.finalScore,
-      evaluationDetails: appState.evaluationDetails
-    }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
   } catch (error) {
     console.warn("Simulation state could not be saved:", error);
+  }
+  saveBackendSimulation(snapshot);
+}
+
+async function syncStateFromBackend() {
+  const simulation = await fetchBackendSimulation();
+  if (!simulation?.snapshot) return;
+
+  applyPersistedSnapshot(simulation.snapshot);
+  initSidebarStepper();
+  renderSession();
+  syncSummaryFromState();
+  if (appState.currentTab === "tab-grades" && appState.finalScore > 0) {
+    renderGradesTab(false);
   }
 }
 
 function resetSimulation() {
   clearPersistedState();
+  resetBackendSimulation();
 
   appState.currentTab = "tab-overview";
   appState.currentSession = 1;
