@@ -34,9 +34,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   loadPersistedState();
   
-  // Init Ambient Particles
-  initParticles();
-
   // Initial UI updates
   updateProgressBars();
   
@@ -373,13 +370,13 @@ function renderSession() {
   
   if (appState.currentSession === 3) {
     seatNameTengah.innerText = "Sandi (Saksi Korban)";
-    seatRoleTengah.innerText = "🧑 SAKSI KORBAN";
+    seatRoleTengah.innerText = "SAKSI KORBAN";
   } else if (appState.currentSession === 4) {
     seatNameTengah.innerText = "Briptu Dian Saputra (Ahli)";
-    seatRoleTengah.innerText = "👮 SAKSI AHLI FORENSIK";
+    seatRoleTengah.innerText = "SAKSI AHLI FORENSIK";
   } else {
     seatNameTengah.innerText = "Adi Saputra";
-    seatRoleTengah.innerText = "👤 TERDAKWA";
+    seatRoleTengah.innerText = "TERDAKWA";
   }
 
   // Draw first dialogue bubble
@@ -667,7 +664,7 @@ function loadActionWidget() {
           <li>Masuk dengan merusak/memanjat (merusak laci dengan obeng).</li>
         </ul>
         <div style="background: rgba(255, 255, 255, 0.02); padding: 12px; border-radius: var(--border-radius-sm); border: 1px solid var(--border-color);">
-          💡 <em>Sebagai Hakim Ketua, Anda harus mendengarkan apakah Penasihat Hukum akan menyatakan keberatan formal (Eksepsi) atas legalitas dakwaan ini.</em>
+          <em>Catatan: Sebagai Hakim Ketua, Anda harus mendengarkan apakah Penasihat Hukum akan menyatakan keberatan formal (Eksepsi) atas legalitas dakwaan ini.</em>
         </div>
       </div>
     `;
@@ -839,7 +836,7 @@ function loadActionWidget() {
         <p style="margin-bottom: 12px;"><strong>Reformasi KUHP 2023 Pasal 65:</strong></p>
         <p style="margin-bottom: 12px;">Hakim didorong mengedepankan pidana alternatif apabila ancaman hukuman atau penjara yang dijatuhkan kurang dari 5 tahun.</p>
         <div style="padding: 10px; background: rgba(16, 185, 129, 0.05); border-radius: var(--border-radius-sm); border: 1px solid rgba(16, 185, 129, 0.1);">
-          📌 <em>Di Sesi berikutnya, Anda dapat memilih menjatuhkan pidana kerja sosial atau pidana pengawasan, alih-alih penjara kurungan langsung, demi pemulihan keadilan.</em>
+          <em>Catatan: Di Sesi berikutnya, Anda dapat memilih menjatuhkan pidana kerja sosial atau pidana pengawasan, alih-alih penjara kurungan langsung, demi pemulihan keadilan.</em>
         </div>
       </div>
     `;
@@ -1344,65 +1341,6 @@ function showToast(title, message, type = 'info') {
   }, 4000);
 }
 
-function initParticles() {
-  const canvas = document.getElementById('particle-canvas');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  
-  const particlesArray = [];
-  const numberOfParticles = Math.min(window.innerWidth / 20, 80);
-  
-  window.addEventListener('resize', () => {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  });
-
-  class Particle {
-    constructor() {
-      this.x = Math.random() * canvas.width;
-      this.y = Math.random() * canvas.height;
-      this.size = Math.random() * 2 + 0.5;
-      this.speedX = Math.random() * 0.5 - 0.25;
-      this.speedY = Math.random() * 0.5 - 0.25;
-      this.color = `rgba(165, 180, 252, ${Math.random() * 0.3})`;
-    }
-    update() {
-      this.x += this.speedX;
-      this.y += this.speedY;
-      
-      if (this.x > canvas.width) this.x = 0;
-      else if (this.x < 0) this.x = canvas.width;
-      
-      if (this.y > canvas.height) this.y = 0;
-      else if (this.y < 0) this.y = canvas.height;
-    }
-    draw() {
-      ctx.fillStyle = this.color;
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  }
-  
-  for (let i = 0; i < numberOfParticles; i++) {
-    particlesArray.push(new Particle());
-  }
-  
-  function animateParticles() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    for (let i = 0; i < particlesArray.length; i++) {
-      particlesArray[i].update();
-      particlesArray[i].draw();
-    }
-    requestAnimationFrame(animateParticles);
-  }
-  
-  animateParticles();
-}
-
 // --- Render Agent Profile Cards + Roster Table ---
 function renderAgentProfiles() {
   const container = document.getElementById("agents-cards-container");
@@ -1442,7 +1380,7 @@ function renderAgentProfiles() {
       tr.innerHTML = `
         <td style="padding: 14px 20px;">
           <div style="display: flex; align-items: center; gap: 10px;">
-            <span style="font-size: 1.4rem;">${ag.avatar || "⚖️"}</span>
+            <span class="agent-token">${ag.avatar || "AI"}</span>
             <div>
               <div style="color: white; font-weight: 600; font-size: 0.875rem;">${ag.name}</div>
               <div style="color: var(--text-muted); font-size: 0.7rem;">${ag.role}</div>
@@ -1478,13 +1416,12 @@ function renderAgentProfiles() {
     card.className = "glass-panel agent-card";
     card.style.flexDirection = "column";
     if (isARIA) {
-      card.style.borderColor = "rgba(168,85,247,0.35)";
-      card.style.background = "linear-gradient(135deg, rgba(168,85,247,0.08), rgba(9,13,22,0.7))";
+      card.style.borderColor = "rgba(37,99,235,0.28)";
     }
 
     card.innerHTML = `
       <div style="display: flex; gap: 16px; align-items: flex-start; width: 100%;">
-        <div class="agent-avatar-circle" style="${isARIA ? 'background: linear-gradient(135deg, #a855f7, #6366f1);' : ''}">${ag.avatar || "⚖️"}</div>
+        <div class="agent-avatar-circle">${ag.avatar || "AI"}</div>
         <div class="agent-info" style="flex-grow: 1;">
           <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 2px;">
             <h3 style="margin:0;">${ag.name}</h3>

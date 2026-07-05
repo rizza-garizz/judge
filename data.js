@@ -4,7 +4,7 @@ const AGENT_PROFILES = {
   hakim: {
     name: "Anda (Hakim Ketua Pemula)",
     role: "Hakim Ketua",
-    avatar: "⚖️",
+    avatar: "HK",
     desc: "Bertanggung jawab memimpin persidangan, menguji keabsahan bukti digital, menilai kesesuaian kesaksian, dan menjatuhkan putusan hukum berdasarkan KUHP 2023 & KUHAP 2025.",
     profileModule: {
       identitas: "Hakim Ketua Utama",
@@ -30,7 +30,7 @@ const AGENT_PROFILES = {
   jaksa: {
     name: "Reza Utama, S.H. (JPU)",
     role: "Jaksa Penuntut Umum",
-    avatar: "👨‍💼",
+    avatar: "JPU",
     desc: "Representasi negara yang mendakwa Adi Saputra melakukan pencurian dengan pemberatan. Sangat bersikeras bahwa bukti digital CCTV dan GPS ponsel terdakwa valid dan sah demi hukum.",
     profileModule: {
       identitas: "Jaksa Penuntut Umum Kejaksaan Negeri Jkt-Sel",
@@ -57,7 +57,7 @@ const AGENT_PROFILES = {
   advokat: {
     name: "Farhan Lubis, S.H. (PH)",
     role: "Penasihat Hukum / Advokat",
-    avatar: "👨‍⚖️",
+    avatar: "PH",
     desc: "Advokat terdakwa yang ahli hukum acara pidana dan sangat kritis terhadap prosedur penyitaan digital (*chain of custody*). Ia berusaha membuktikan alibi kliennya dan kecacatan formil bukti JPU.",
     profileModule: {
       identitas: "Advokat & Konsultan Hukum (Lubis & Associates)",
@@ -84,7 +84,7 @@ const AGENT_PROFILES = {
   terdakwa: {
     name: "Adi Saputra",
     role: "Terdakwa",
-    avatar: "👤",
+    avatar: "T",
     desc: "Didakwa mencuri tas berisi uang Rp 15 juta dari kasir minimarket. Mengaku sedang tertidur di kamar kosnya saat kejadian berlangsung, namun memiliki riwayat chat mencurigakan.",
     profileModule: {
       identitas: "Terdakwa Adi Saputra (24 Tahun)",
@@ -111,7 +111,7 @@ const AGENT_PROFILES = {
   saksi1: {
     name: "Sandi",
     role: "Saksi Korban (Kasir)",
-    avatar: "🧑",
+    avatar: "SK",
     desc: "Kasir minimarket yang ditodong oleh pelaku. Mengalami trauma psikologis namun ingat jaket berlogo lingkaran merah yang digunakan pelaku.",
     profileModule: {
       identitas: "Saksi Korban / Kasir Minimarket",
@@ -138,7 +138,7 @@ const AGENT_PROFILES = {
   saksi2: {
     name: "Briptu Dian Saputra, S.Kom.",
     role: "Saksi Ahli Digital Forensik",
-    avatar: "👮",
+    avatar: "AF",
     desc: "Ahli Lab Forensik Polri yang melakukan restorasi video CCTV menggunakan AI Super Resolution serta mengekstraksi metadata log HP terdakwa.",
     profileModule: {
       identitas: "Ahli Digital Forensik Puslabfor Polri",
@@ -165,7 +165,7 @@ const AGENT_PROFILES = {
   hakimAsisten: {
     name: "ARIA (AI Judicial Assistant)",
     role: "Hakim Asisten AI",
-    avatar: "🤖",
+    avatar: "AI",
     desc: "Agen AI khusus yang membantu Hakim Ketua dalam menganalisis kesesuaian fakta hukum, menyusun draft konsideran putusan, dan mengevaluasi validitas alat bukti elektronik secara otomatis.",
     profileModule: {
       identitas: "Automated Reasoning & Inference Agent (ARIA) v2.0",

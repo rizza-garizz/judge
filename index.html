@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="HakimPintar AI adalah simulator peradilan pidana interaktif berbasis Multi-Agent AI. Latih kemampuan hakim pemula dalam menangani perkara pencurian dengan pemberatan menggunakan KUHP 2023 dan KUHAP 2025.">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚖️</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2216%22 fill=%22%230f172a%22/><path d=%22M50 18v52M30 30h40M34 70h32M28 82h44%22 stroke=%22%232563eb%22 stroke-width=%228%22 stroke-linecap=%22round%22/></svg>">
   <title>HakimPintar AI - Simulator Peradilan Pidana Multi-Agent</title>
   
   <!-- Leaflet Map CSS -->
@@ -19,13 +19,10 @@
     <!-- Toast Notification Container -->
     <div id="toast-container" class="toast-container"></div>
 
-    <!-- Ambient Particle Canvas -->
-    <canvas id="particle-canvas" class="particle-canvas"></canvas>
-    
     <!-- Sidebar Navigation -->
     <aside class="sidebar">
       <div class="sidebar-brand">
-        <div class="brand-icon">⚖️</div>
+        <div class="brand-icon"><i data-lucide="scale"></i></div>
         <div class="brand-name">HakimPintar AI</div>
       </div>
       
@@ -109,10 +106,13 @@
         
         <!-- 1. TAB OVERVIEW -->
         <section id="tab-overview" class="tab-content active">
-          <div class="glass-panel card" style="padding: 32px; margin-bottom: 32px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.05)); border-color: rgba(99, 102, 241, 0.2);">
-            <h1 style="font-size: 2.25rem; margin-bottom: 8px;">Simulasi Peradilan Pidana <span class="text-gradient">Multi-Agent AI</span></h1>
-            <p style="color: var(--text-secondary); max-width: 900px; font-size: 1.1rem;">
-              Selamat datang di portal praktikum hakim pemula. Sistem ini mensimulasikan alur persidangan 8 sesi penanganan perkara pencurian dengan pemberatan menggunakan agen AI yang berperan sebagai Jaksa, Penasihat Hukum, Terdakwa, Saksi Korban, dan Saksi Ahli. Terapkan regulasi **KUHP Baru 2023** dan **KUHAP Baru 2025** secara kritis untuk menguji pembuktian digital.
+          <div class="glass-panel card overview-brief">
+            <div>
+              <div class="section-kicker">Praktikum Peradilan Pidana</div>
+              <h1>Simulator Sidang Hakim Pemula</h1>
+            </div>
+            <p>
+              Lingkungan latihan terstruktur untuk menjalankan 8 sesi persidangan perkara pencurian dengan pemberatan. Peserta menilai dakwaan, eksepsi, bukti digital, keterangan saksi, dan amar putusan berdasarkan skenario KUHP 2023 dan KUHAP 2025.
             </p>
           </div>
 
@@ -201,7 +201,7 @@
                 <div class="court-layout-grid">
                   <!-- Hakim (Top center) -->
                   <div class="court-seat active-speaker" id="seat-hakim">
-                    <div class="seat-role">⚖️ MAJELIS HAKIM</div>
+                    <div class="seat-role">MAJELIS HAKIM</div>
                     <div class="seat-name" id="seat-name-hakim">Hakim Ketua (Anda)</div>
                   </div>
 
@@ -219,7 +219,7 @@
 
                   <!-- Terdakwa / Saksi (Bottom center) -->
                   <div class="court-seat" id="seat-tengah" style="max-width: 260px; margin: 0 auto;">
-                    <div class="seat-role" id="seat-role-tengah">👤 TERDAKWA</div>
+                    <div class="seat-role" id="seat-role-tengah">TERDAKWA</div>
                     <div class="seat-name" id="seat-name-tengah">Adi Saputra</div>
                   </div>
                 </div>
@@ -288,8 +288,9 @@
         <section id="tab-agents" class="tab-content">
 
           <!-- Section hero -->
-          <div class="glass-panel card" style="margin-bottom: 28px; padding: 28px; background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(168,85,247,0.05)); border-color: rgba(99,102,241,0.2);">
-            <h2 style="font-size: 1.75rem; margin-bottom: 8px;">Arsitektur <span class="text-gradient">Multi-Agent AI</span> Persidangan</h2>
+          <div class="glass-panel card" style="margin-bottom: 28px; padding: 24px;">
+            <div class="section-kicker">Konfigurasi Simulasi</div>
+            <h2 style="font-size: 1.45rem; margin: 4px 0 8px;">Arsitektur Peran Persidangan</h2>
             <p style="color: var(--text-secondary); font-size: 0.95rem; max-width: 860px;">Sistem ini dibangun dengan arsitektur <strong style="color:white;">6 agen AI independen</strong> yang terkoordinasi. Setiap agen memiliki Profile Module, Memory Module (short-term &amp; long-term), Strategy Module, Legal Retriever RAG, dan LLM Engine yang dikonfigurasi sesuai perannya.</p>
           </div>
 
@@ -317,15 +318,15 @@
           </div>
 
           <!-- ARIA Highlight Banner -->
-          <div class="glass-panel" style="margin-bottom: 28px; padding: 22px 28px; display: flex; gap: 20px; align-items: center; background: linear-gradient(135deg, rgba(168,85,247,0.12), rgba(99,102,241,0.06)); border-color: rgba(168,85,247,0.3);">
-            <div style="font-size: 2.5rem; flex-shrink:0;">🤖</div>
+          <div class="glass-panel" style="margin-bottom: 28px; padding: 22px 28px; display: flex; gap: 20px; align-items: center;">
+            <div class="agent-avatar-circle" style="width: 48px; height: 48px; font-size: 0.95rem;">AI</div>
             <div>
               <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
                 <h3 style="color: white; font-size: 1.1rem;">ARIA — AI Judicial Assistant</h3>
-                <span class="badge badge-secondary">NEW</span>
+                <span class="badge badge-secondary">Asisten</span>
                 <span class="badge" style="background: rgba(99,102,241,0.15); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.3); font-size: 0.65rem;">Claude Sonnet · Thinking Mode</span>
               </div>
-              <p style="color: var(--text-secondary); font-size: 0.875rem; line-height: 1.5; max-width: 900px;">Hakim Asisten AI berbasis <strong style="color:#c084fc">Claude Sonnet (Extended Thinking)</strong> yang beroperasi di balik layar. ARIA secara otomatis melakukan <em>cross-referencing</em> antara keterangan saksi, log GPS/BTS, nilai hash CCTV, dan corpus KUHP 2023 / KUHAP 2025 — kemudian menyajikan draft konsideran putusan yang terstruktur kepada Hakim Ketua.</p>
+              <p style="color: var(--text-secondary); font-size: 0.875rem; line-height: 1.5; max-width: 900px;">Hakim Asisten AI berbasis <strong style="color:white">Claude Sonnet (Extended Thinking)</strong> yang beroperasi di balik layar. ARIA secara otomatis melakukan <em>cross-referencing</em> antara keterangan saksi, log GPS/BTS, nilai hash CCTV, dan corpus KUHP 2023 / KUHAP 2025 — kemudian menyajikan draft konsideran putusan yang terstruktur kepada Hakim Ketua.</p>
             </div>
           </div>
 
@@ -459,7 +460,7 @@
   <!-- Gavel Animation Overlay -->
   <div class="gavel-overlay" id="gavel-overlay">
     <div class="gavel-content">
-      <div class="gavel-icon">⚖️</div>
+      <div class="gavel-icon"><i data-lucide="scale"></i></div>
       <div class="gavel-text" id="gavel-text">PUTUSAN DIJATUHKAN</div>
       <div class="gavel-sub" id="gavel-sub"></div>
     </div>
