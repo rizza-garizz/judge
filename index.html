@@ -180,23 +180,23 @@
         <!-- 2. TAB COURTROOM (TRIAL ROOM) -->
         <section id="tab-courtroom" class="tab-content">
           <!-- Session Header info -->
-          <div class="glass-panel" style="padding: 20px; margin-bottom: 20px; border-left: 4px solid var(--color-primary);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <div class="glass-panel session-summary">
+            <div class="session-summary-row">
               <span class="badge badge-primary" id="court-session-badge">Sesi 1: Pembacaan Surat Dakwaan</span>
-              <span style="font-size: 0.8rem; color: var(--text-muted);" id="court-session-progress">Langkah 1/5</span>
+              <span class="session-step-meta" id="court-session-progress">Langkah 1/5</span>
             </div>
-            <h3 id="court-session-title" style="color: white; margin-bottom: 6px;">Pembacaan Dakwaan JPU</h3>
-            <p id="court-session-desc" style="color: var(--text-secondary); font-size: 0.875rem;">Jaksa membacakan dakwaan pidana pencurian...</p>
+            <h3 id="court-session-title">Pembacaan Dakwaan JPU</h3>
+            <p id="court-session-desc">Jaksa membacakan dakwaan pidana pencurian...</p>
           </div>
 
-          <div class="grid-2" style="grid-template-columns: 1.2fr 0.8fr;">
+          <div class="grid-2 courtroom-workspace">
             
             <!-- Dialogue & Courtroom Visual Panel -->
             <div style="display: flex; flex-direction: column; gap: 20px;">
               
               <!-- Courtroom Layout visual map -->
-              <div class="glass-panel" style="padding: 16px; background: rgba(0,0,0,0.3); border-color: rgba(255,255,255,0.04);">
-                <h4 style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 12px; text-align: center;">Denah Ruang Sidang (Aktif)</h4>
+              <div class="glass-panel courtroom-panel">
+                <h4 class="panel-label">Posisi Peran Aktif</h4>
                 
                 <div class="court-layout-grid">
                   <!-- Hakim (Top center) -->
@@ -226,7 +226,7 @@
               </div>
 
               <!-- Dialogue bubble transcript -->
-              <div class="glass-panel dialogue-panel" style="height: 380px;">
+              <div class="glass-panel dialogue-panel">
                 <div class="dialogue-history" id="court-dialogue-history">
                   <!-- Populated by JS -->
                 </div>
@@ -260,7 +260,7 @@
             <div style="display: flex; flex-direction: column; gap: 20px;">
               
               <!-- Session Action Widget Container -->
-              <div class="glass-panel card" style="flex-grow: 1; min-height: 480px; display: flex; flex-direction: column;">
+              <div class="glass-panel card action-panel">
                 <h3 class="card-title" id="action-widget-title"><i data-lucide="activity" style="color: var(--color-primary);"></i> Evaluasi Sidang</h3>
                 
                 <div id="action-widget-body" style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center;">
@@ -272,9 +272,9 @@
               </div>
 
               <!-- Smart Legal Assistant Guidance -->
-              <div class="glass-panel" style="padding: 20px; background: var(--color-primary-glow); border-color: rgba(99, 102, 241, 0.2);">
-                <h4 style="color: white; font-size: 0.9rem; margin-bottom: 8px;"><i data-lucide="help-circle" style="vertical-align: middle; margin-right: 6px; color: var(--color-primary);"></i> Panduan Sesi Sidang</h4>
-                <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5;" id="court-guideline-text">
+              <div class="glass-panel reviewer-note">
+                <h4><i data-lucide="clipboard-check"></i> Catatan Pemeriksaan</h4>
+                <p id="court-guideline-text">
                   Perhatikan rumusan dakwaan JPU. Apakah unsur waktu (malam hari), perusakan kunci laci, dan barang bukti uang Rp 15 juta telah diuraikan secara cermat, jelas, dan lengkap.
                 </p>
               </div>
@@ -364,15 +364,15 @@
 
         <!-- 5. TAB GRADES (EVALUATION REPORT) -->
         <section id="tab-grades" class="tab-content">
-          <div class="glass-panel card" style="margin-bottom: 32px;">
+          <div class="glass-panel card assessment-report">
             <h3 class="card-title"><i data-lucide="award" style="color: var(--color-success);"></i> Laporan Penilaian Praktikum Hakim</h3>
             <p class="card-subtitle">
               Sistem mengevaluasi putusan akhir dan keaktifan Anda menilai keabsahan bukti digital di persidangan berdasarkan instrumen objektif.
             </p>
 
-            <div class="grid-2" style="grid-template-columns: 0.8fr 1.2fr; gap: 32px; margin-top: 24px;">
+            <div class="assessment-layout">
               <!-- Score breakdown list -->
-              <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; border-right: 1px solid var(--border-color); padding-right: 32px;">
+              <div class="assessment-summary">
                 <div class="score-ring-container" id="grades-score-ring">
                   <svg class="score-ring-svg" viewBox="0 0 140 140">
                     <defs>
@@ -395,47 +395,47 @@
               </div>
 
               <!-- Rubric scores progress -->
-              <div style="display: flex; flex-direction: column; gap: 20px;">
+              <div class="rubric-list">
                 <!-- Rubric 1 -->
-                <div>
-                  <div style="display: flex; justify-content: space-between; font-size: 0.875rem; margin-bottom: 6px;">
-                    <span style="color: white; font-weight: 600;">1. Evaluasi Bukti Digital & AI (30%)</span>
+                <div class="rubric-row">
+                  <div class="rubric-row-head">
+                    <span>1. Evaluasi Bukti Digital & AI (30%)</span>
                     <span style="color: var(--color-primary);" id="rubric-score-1">- / 30</span>
                   </div>
-                  <div style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden;">
+                  <div class="rubric-track">
                     <div style="width: 0%; height: 100%; background: var(--color-primary); transition: var(--transition-smooth);" id="rubric-bar-1"></div>
                   </div>
                 </div>
 
                 <!-- Rubric 2 -->
-                <div>
-                  <div style="display: flex; justify-content: space-between; font-size: 0.875rem; margin-bottom: 6px;">
-                    <span style="color: white; font-weight: 600;">2. Kepatuhan Hukum Acara KUHAP 2025 (20%)</span>
+                <div class="rubric-row">
+                  <div class="rubric-row-head">
+                    <span>2. Kepatuhan Hukum Acara KUHAP 2025 (20%)</span>
                     <span style="color: var(--color-secondary);" id="rubric-score-2">- / 20</span>
                   </div>
-                  <div style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden;">
+                  <div class="rubric-track">
                     <div style="width: 0%; height: 100%; background: var(--color-secondary); transition: var(--transition-smooth);" id="rubric-bar-2"></div>
                   </div>
                 </div>
 
                 <!-- Rubric 3 -->
-                <div>
-                  <div style="display: flex; justify-content: space-between; font-size: 0.875rem; margin-bottom: 6px;">
-                    <span style="color: white; font-weight: 600;">3. Penerapan Pasal KUHP Baru 2023 (25%)</span>
+                <div class="rubric-row">
+                  <div class="rubric-row-head">
+                    <span>3. Penerapan Pasal KUHP Baru 2023 (25%)</span>
                     <span style="color: var(--color-success);" id="rubric-score-3">- / 25</span>
                   </div>
-                  <div style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden;">
+                  <div class="rubric-track">
                     <div style="width: 0%; height: 100%; background: var(--color-success); transition: var(--transition-smooth);" id="rubric-bar-3"></div>
                   </div>
                 </div>
 
                 <!-- Rubric 4 -->
-                <div>
-                  <div style="display: flex; justify-content: space-between; font-size: 0.875rem; margin-bottom: 6px;">
-                    <span style="color: white; font-weight: 600;">4. Keadilan & Proporsionalitas Hukuman (25%)</span>
+                <div class="rubric-row">
+                  <div class="rubric-row-head">
+                    <span>4. Keadilan & Proporsionalitas Hukuman (25%)</span>
                     <span style="color: var(--color-warning);" id="rubric-score-4">- / 25</span>
                   </div>
-                  <div style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden;">
+                  <div class="rubric-track">
                     <div style="width: 0%; height: 100%; background: var(--color-warning); transition: var(--transition-smooth);" id="rubric-bar-4"></div>
                   </div>
                 </div>
