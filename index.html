@@ -60,8 +60,8 @@
       </ul>
 
       <!-- Interactive Session Stepper in Sidebar -->
-      <div style="padding: 16px; border-top: 1px solid var(--border-color);">
-        <h5 style="color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.05em;">Progres Persidangan (8 Sesi)</h5>
+      <div class="sidebar-progress">
+        <h5>Progres Persidangan (8 Sesi)</h5>
         <div class="session-stepper" id="sidebar-stepper">
           <!-- Populated by JS -->
         </div>
@@ -78,7 +78,7 @@
       
       <!-- Top Sticky Header -->
       <header class="main-header">
-        <div style="display: flex; align-items: center; gap: 12px;">
+        <div class="header-title-group">
           <button class="burger-menu" id="sidebar-toggle">
             <i data-lucide="menu"></i>
           </button>
@@ -98,7 +98,7 @@
 
       <!-- Trial Progress Bar -->
       <div class="trial-progress-bar" id="trial-progress-bar">
-        <div class="trial-progress-fill" id="trial-progress-fill" style="width: 12.5%;"></div>
+        <div class="trial-progress-fill" id="trial-progress-fill"></div>
       </div>
 
       <!-- Main Scrollable Body -->
@@ -192,7 +192,7 @@
           <div class="grid-2 courtroom-workspace">
             
             <!-- Dialogue & Courtroom Visual Panel -->
-            <div style="display: flex; flex-direction: column; gap: 20px;">
+            <div class="courtroom-main-column">
               
               <!-- Courtroom Layout visual map -->
               <div class="glass-panel courtroom-panel">
@@ -206,7 +206,7 @@
                   </div>
 
                   <!-- JPU (Left) & PH (Right) -->
-                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin: 15px 0;">
+                  <div class="court-party-row">
                     <div class="court-seat" id="seat-jaksa">
                       <div class="seat-role"> JPU</div>
                       <div class="seat-name" id="seat-name-jaksa">Reza Utama, S.H.</div>
@@ -218,7 +218,7 @@
                   </div>
 
                   <!-- Terdakwa / Saksi (Bottom center) -->
-                  <div class="court-seat" id="seat-tengah" style="max-width: 260px; margin: 0 auto;">
+                  <div class="court-seat court-center-seat" id="seat-tengah">
                     <div class="seat-role" id="seat-role-tengah">TERDAKWA</div>
                     <div class="seat-name" id="seat-name-tengah">Adi Saputra</div>
                   </div>
@@ -232,22 +232,22 @@
                 </div>
 
                 <!-- Human Judge Input Area (Hidden by default) -->
-                <div id="human-judge-input-area" style="display: none; padding: 12px 20px; background: rgba(0,0,0,0.4); border-top: 1px solid var(--border-color); flex-direction: column; gap: 8px;">
-                  <div style="font-size: 0.75rem; color: var(--color-primary); font-weight: bold; text-transform: uppercase;">Giliran Anda (Hakim Ketua)</div>
-                  <div style="display: flex; gap: 10px;">
-                    <input type="text" id="human-judge-input" style="flex: 1; padding: 10px 14px; border-radius: var(--border-radius-sm); border: 1px solid var(--border-color); background: rgba(255,255,255,0.05); color: white; font-size: 0.9rem;" placeholder="Ketik pertanyaan atau tanggapan Anda...">
-                    <button class="btn btn-primary" id="btn-send-judge">Kirim <i data-lucide="send" style="width: 14px; height: 14px; margin-left: 4px;"></i></button>
+                <div id="human-judge-input-area" class="judge-input-area">
+                  <div class="judge-input-label">Giliran Anda (Hakim Ketua)</div>
+                  <div class="judge-input-row">
+                    <input type="text" id="human-judge-input" class="judge-input" placeholder="Ketik pertanyaan atau tanggapan Anda...">
+                    <button class="btn btn-primary" id="btn-send-judge">Kirim <i data-lucide="send" class="btn-inline-icon"></i></button>
                   </div>
-                  <div style="font-size: 0.75rem; color: var(--text-muted);">
-                    <i data-lucide="lightbulb" style="width: 12px; height: 12px; vertical-align: middle;"></i> Saran Dialog: <span id="judge-suggestion-text" style="cursor: pointer; text-decoration: underline; color: var(--color-secondary);">Gunakan saran</span>
+                  <div class="judge-suggestion">
+                    <i data-lucide="lightbulb"></i> Saran Dialog: <span id="judge-suggestion-text">Gunakan saran</span>
                   </div>
                 </div>
 
-                <div class="dialogue-prompt-list" id="dialogue-controls-footer" style="background: rgba(0,0,0,0.3); display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 12px 20px;">
+                <div class="dialogue-prompt-list" id="dialogue-controls-footer">
                   <button class="btn btn-secondary" id="btn-prev-dialogue" disabled>
                     <i data-lucide="chevron-left"></i> Kembali
                   </button>
-                  <span id="dialogue-index-lbl" style="font-size: 0.85rem; color: var(--text-secondary);">Dialog 1 / 5</span>
+                  <span id="dialogue-index-lbl" class="dialogue-index-label">Dialog 1 / 5</span>
                   <button class="btn btn-primary" id="btn-next-dialogue">
                     Lanjut Percakapan <i data-lucide="chevron-right"></i>
                   </button>
@@ -257,15 +257,15 @@
             </div>
 
             <!-- Interactivity Action Zone -->
-            <div style="display: flex; flex-direction: column; gap: 20px;">
+            <div class="courtroom-side-column">
               
               <!-- Session Action Widget Container -->
               <div class="glass-panel card action-panel">
-                <h3 class="card-title" id="action-widget-title"><i data-lucide="activity" style="color: var(--color-primary);"></i> Evaluasi Sidang</h3>
+                <h3 class="card-title" id="action-widget-title"><i data-lucide="activity" class="icon-primary"></i> Evaluasi Sidang</h3>
                 
-                <div id="action-widget-body" style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center;">
+                <div id="action-widget-body" class="action-widget-body">
                   <!-- Dynamic forms based on session. Example: CCTV or GPS or Putusan Sela -->
-                  <p style="color: var(--text-secondary); text-align: center;" id="action-widget-placeholder">
+                  <p class="empty-state-text" id="action-widget-placeholder">
                     Ikuti dialog di sebelah kiri untuk membuka modul pengujian bukti interaktif.
                   </p>
                 </div>
@@ -288,26 +288,26 @@
         <section id="tab-agents" class="tab-content">
 
           <!-- Section hero -->
-          <div class="glass-panel card" style="margin-bottom: 28px; padding: 24px;">
+          <div class="glass-panel card section-panel">
             <div class="section-kicker">Konfigurasi Simulasi</div>
-            <h2 style="font-size: 1.45rem; margin: 4px 0 8px;">Arsitektur Peran Persidangan</h2>
-            <p style="color: var(--text-secondary); font-size: 0.95rem; max-width: 860px;">Sistem ini menggunakan konfigurasi peran terstruktur untuk memandu dialog persidangan. Setiap peran memiliki mandat, konteks perkara, strategi pemeriksaan, sumber rujukan, dan model respons yang terdokumentasi.</p>
+            <h2 class="section-heading">Arsitektur Peran Persidangan</h2>
+            <p class="section-copy">Sistem ini menggunakan konfigurasi peran terstruktur untuk memandu dialog persidangan. Setiap peran memiliki mandat, konteks perkara, strategi pemeriksaan, sumber rujukan, dan model respons yang terdokumentasi.</p>
           </div>
 
           <!-- Agent Roster Summary Table -->
-          <div class="glass-panel card" style="margin-bottom: 28px; padding: 0; overflow: hidden;">
-            <div style="padding: 20px 24px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 10px;">
-              <i data-lucide="table" style="color: var(--color-primary);"></i>
-              <h3 style="font-size: 1.05rem; color: white;">Daftar Peran — Fungsi &amp; Model Respons</h3>
+          <div class="glass-panel card data-panel">
+            <div class="data-panel-header">
+              <i data-lucide="table" class="icon-primary"></i>
+              <h3>Daftar Peran — Fungsi &amp; Model Respons</h3>
             </div>
-            <div style="overflow-x: auto;">
-              <table id="agent-roster-table" style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">
+            <div class="table-scroll">
+              <table id="agent-roster-table" class="enterprise-table">
                 <thead>
-                  <tr style="background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border-color);">
-                    <th style="padding: 12px 20px; text-align: left; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em;">Peran</th>
-                    <th style="padding: 12px 20px; text-align: left; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em;">Fungsi Utama</th>
-                    <th style="padding: 12px 20px; text-align: left; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em;">Model Respons</th>
-                    <th style="padding: 12px 20px; text-align: left; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em;">Kontrol</th>
+                  <tr>
+                    <th>Peran</th>
+                    <th>Fungsi Utama</th>
+                    <th>Model Respons</th>
+                    <th>Kontrol</th>
                   </tr>
                 </thead>
                 <tbody id="agent-roster-tbody">
@@ -318,20 +318,20 @@
           </div>
 
           <!-- ARIA Highlight Banner -->
-          <div class="glass-panel" style="margin-bottom: 28px; padding: 22px 28px; display: flex; gap: 20px; align-items: center;">
-            <div class="agent-avatar-circle" style="width: 48px; height: 48px; font-size: 0.95rem;">AI</div>
+          <div class="glass-panel assistant-summary">
+            <div class="agent-avatar-circle assistant-avatar">AI</div>
             <div>
-              <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
-                <h3 style="color: white; font-size: 1.1rem;">ARIA — Asisten Analisis Yudisial</h3>
+              <div class="assistant-heading-row">
+                <h3>ARIA — Asisten Analisis Yudisial</h3>
                 <span class="badge badge-secondary">Asisten</span>
-                <span class="badge badge-primary" style="font-size: 0.65rem;">Model Analitis</span>
+                <span class="badge badge-primary badge-compact">Model Analitis</span>
               </div>
-              <p style="color: var(--text-secondary); font-size: 0.875rem; line-height: 1.5; max-width: 900px;">ARIA membantu meninjau kesesuaian keterangan saksi, log GPS/BTS, nilai hash CCTV, dan rujukan hukum dalam skenario. Hasilnya digunakan sebagai bahan latihan penyusunan pertimbangan, bukan pengganti penilaian hakim.</p>
+              <p>ARIA membantu meninjau kesesuaian keterangan saksi, log GPS/BTS, nilai hash CCTV, dan rujukan hukum dalam skenario. Hasilnya digunakan sebagai bahan latihan penyusunan pertimbangan, bukan pengganti penilaian hakim.</p>
             </div>
           </div>
 
           <!-- Detailed Agent Architecture Cards -->
-          <div style="margin-bottom: 16px; font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; letter-spacing: 0.06em;">Detail Arsitektur per Agen</div>
+          <div class="subsection-label">Detail Konfigurasi per Peran</div>
           <div class="grid-2" id="agents-cards-container">
             <!-- Populated by JS -->
           </div>
@@ -339,14 +339,14 @@
 
         <!-- 4. TAB COMPARATIVE LAW -->
         <section id="tab-comparative" class="tab-content">
-          <div style="margin-bottom: 24px;">
-            <p style="color: var(--text-secondary);">Pahami perbedaan krusial penerapan Kitab Undang-Undang Hukum Pidana (KUHP) Baru 2023 dan Kitab Undang-Undang Hukum Acara Pidana (KUHAP) Baru 2025.</p>
+          <div class="section-intro">
+            <p>Pahami perbedaan krusial penerapan Kitab Undang-Undang Hukum Pidana (KUHP) Baru 2023 dan Kitab Undang-Undang Hukum Acara Pidana (KUHAP) Baru 2025.</p>
           </div>
           
           <div class="grid-2">
             <!-- KUHP Comparative -->
             <div class="glass-panel card">
-              <h3 class="card-title"><i data-lucide="scale" style="color: var(--color-primary);"></i> Reformasi KUHP Baru (UU 1/2023)</h3>
+              <h3 class="card-title"><i data-lucide="scale" class="icon-primary"></i> Reformasi KUHP Baru (UU 1/2023)</h3>
               <div class="library-accordion" id="kuhp-comparative-container">
                 <!-- Populated by JS -->
               </div>
@@ -354,7 +354,7 @@
 
             <!-- KUHAP Comparative -->
             <div class="glass-panel card">
-              <h3 class="card-title"><i data-lucide="book-open" style="color: var(--color-secondary);"></i> Reformasi Hukum Acara (KUHAP 2025)</h3>
+              <h3 class="card-title"><i data-lucide="book-open" class="icon-secondary"></i> Reformasi Hukum Acara (KUHAP 2025)</h3>
               <div class="library-accordion" id="kuhap-comparative-container">
                 <!-- Populated by JS -->
               </div>
@@ -365,7 +365,7 @@
         <!-- 5. TAB GRADES (EVALUATION REPORT) -->
         <section id="tab-grades" class="tab-content">
           <div class="glass-panel card assessment-report">
-            <h3 class="card-title"><i data-lucide="award" style="color: var(--color-success);"></i> Laporan Penilaian Praktikum Hakim</h3>
+            <h3 class="card-title"><i data-lucide="award" class="icon-success"></i> Laporan Penilaian Praktikum Hakim</h3>
             <p class="card-subtitle">
               Sistem mengevaluasi putusan akhir dan keaktifan Anda menilai keabsahan bukti digital di persidangan berdasarkan instrumen objektif.
             </p>
@@ -390,8 +390,8 @@
                     <span class="score-ring-label">SKOR TOTAL</span>
                   </div>
                 </div>
-                <h4 style="color: white; margin-bottom: 4px;" id="grades-judgment-status">Belum Menyelesaikan Sidang</h4>
-                <p style="font-size: 0.8rem; color: var(--text-muted); text-align: center;">Selesaikan Sesi 8 (Putusan Akhir) untuk memicu penilaian otomatis.</p>
+                <h4 class="assessment-status" id="grades-judgment-status">Belum Menyelesaikan Sidang</h4>
+                <p class="assessment-note">Selesaikan Sesi 8 (Putusan Akhir) untuk memicu penilaian otomatis.</p>
               </div>
 
               <!-- Rubric scores progress -->
@@ -400,10 +400,10 @@
                 <div class="rubric-row">
                   <div class="rubric-row-head">
                     <span>1. Evaluasi Bukti Digital & AI (30%)</span>
-                    <span style="color: var(--color-primary);" id="rubric-score-1">- / 30</span>
+                    <span class="rubric-score-primary" id="rubric-score-1">- / 30</span>
                   </div>
                   <div class="rubric-track">
-                    <div style="width: 0%; height: 100%; background: var(--color-primary); transition: var(--transition-smooth);" id="rubric-bar-1"></div>
+                    <div class="rubric-fill rubric-fill-primary" id="rubric-bar-1"></div>
                   </div>
                 </div>
 
@@ -411,10 +411,10 @@
                 <div class="rubric-row">
                   <div class="rubric-row-head">
                     <span>2. Kepatuhan Hukum Acara KUHAP 2025 (20%)</span>
-                    <span style="color: var(--color-secondary);" id="rubric-score-2">- / 20</span>
+                    <span class="rubric-score-secondary" id="rubric-score-2">- / 20</span>
                   </div>
                   <div class="rubric-track">
-                    <div style="width: 0%; height: 100%; background: var(--color-secondary); transition: var(--transition-smooth);" id="rubric-bar-2"></div>
+                    <div class="rubric-fill rubric-fill-secondary" id="rubric-bar-2"></div>
                   </div>
                 </div>
 
@@ -422,10 +422,10 @@
                 <div class="rubric-row">
                   <div class="rubric-row-head">
                     <span>3. Penerapan Pasal KUHP Baru 2023 (25%)</span>
-                    <span style="color: var(--color-success);" id="rubric-score-3">- / 25</span>
+                    <span class="rubric-score-success" id="rubric-score-3">- / 25</span>
                   </div>
                   <div class="rubric-track">
-                    <div style="width: 0%; height: 100%; background: var(--color-success); transition: var(--transition-smooth);" id="rubric-bar-3"></div>
+                    <div class="rubric-fill rubric-fill-success" id="rubric-bar-3"></div>
                   </div>
                 </div>
 
@@ -433,10 +433,10 @@
                 <div class="rubric-row">
                   <div class="rubric-row-head">
                     <span>4. Keadilan & Proporsionalitas Hukuman (25%)</span>
-                    <span style="color: var(--color-warning);" id="rubric-score-4">- / 25</span>
+                    <span class="rubric-score-warning" id="rubric-score-4">- / 25</span>
                   </div>
                   <div class="rubric-track">
-                    <div style="width: 0%; height: 100%; background: var(--color-warning); transition: var(--transition-smooth);" id="rubric-bar-4"></div>
+                    <div class="rubric-fill rubric-fill-warning" id="rubric-bar-4"></div>
                   </div>
                 </div>
               </div>
@@ -445,8 +445,8 @@
 
           <!-- Detailed feedback section -->
           <div class="glass-panel card" id="grades-feedback-card" style="display: none;">
-            <h3 class="card-title"><i data-lucide="file-check-2" style="color: var(--color-primary);"></i> Catatan Rekomendasi Dewan Penguji</h3>
-            <div id="grades-feedback-text" style="color: var(--text-secondary); line-height: 1.7; font-size: 0.95rem;">
+            <h3 class="card-title"><i data-lucide="file-check-2" class="icon-primary"></i> Catatan Rekomendasi Dewan Penguji</h3>
+            <div id="grades-feedback-text" class="feedback-text">
               <!-- Populated by JS -->
             </div>
           </div>

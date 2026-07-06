@@ -180,6 +180,19 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--text-muted);
 }
 
+.sidebar-progress {
+  padding: 16px;
+  border-top: 1px solid var(--border-color);
+}
+
+.sidebar-progress h5 {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  letter-spacing: 0.05em;
+}
+
 /* Sidebar Stepper for 8 Sessions */
 .session-stepper {
   display: flex;
@@ -267,6 +280,12 @@ h1, h2, h3, h4, h5, h6 {
 .header-title {
   font-size: 1.25rem;
   font-weight: 600;
+}
+
+.header-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .user-badge {
@@ -552,6 +571,13 @@ h1, h2, h3, h4, h5, h6 {
   padding: 16px;
 }
 
+.courtroom-main-column,
+.courtroom-side-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
 .panel-label {
   font-size: 0.72rem;
   color: var(--text-muted);
@@ -568,6 +594,18 @@ h1, h2, h3, h4, h5, h6 {
   padding: 14px;
   border-radius: var(--border-radius-md);
   border: 1px solid var(--border-color);
+}
+
+.court-party-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  margin: 15px 0;
+}
+
+.court-center-seat {
+  max-width: 260px;
+  margin: 0 auto;
 }
 
 .court-seat {
@@ -604,6 +642,18 @@ h1, h2, h3, h4, h5, h6 {
   min-height: 480px;
   display: flex;
   flex-direction: column;
+}
+
+.action-widget-body {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.empty-state-text {
+  color: var(--text-secondary);
+  text-align: center;
 }
 
 .reviewer-note {
@@ -669,6 +719,139 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.02em;
+}
+
+.section-panel {
+  margin-bottom: 28px;
+  padding: 24px;
+}
+
+.section-heading {
+  font-size: 1.45rem;
+  margin: 4px 0 8px;
+}
+
+.section-copy {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  max-width: 860px;
+}
+
+.data-panel {
+  margin-bottom: 28px;
+  padding: 0;
+  overflow: hidden;
+}
+
+.data-panel-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.data-panel-header h3 {
+  font-size: 1.05rem;
+  color: #f8fafc;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.enterprise-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.enterprise-table thead tr {
+  background: rgba(255,255,255,0.03);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.enterprise-table th {
+  padding: 12px 20px;
+  text-align: left;
+  color: var(--text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+}
+
+.assistant-summary {
+  margin-bottom: 28px;
+  padding: 22px 28px;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.assistant-avatar {
+  width: 48px;
+  height: 48px;
+  font-size: 0.95rem;
+}
+
+.assistant-heading-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.assistant-heading-row h3 {
+  color: #f8fafc;
+  font-size: 1.1rem;
+}
+
+.assistant-summary p {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  max-width: 900px;
+}
+
+.badge-compact {
+  font-size: 0.65rem;
+}
+
+.subsection-label {
+  margin-bottom: 16px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.icon-primary {
+  color: var(--color-primary);
+}
+
+.icon-secondary {
+  color: var(--color-secondary);
+}
+
+.icon-success {
+  color: var(--color-success);
+}
+
+.btn-inline-icon {
+  width: 14px;
+  height: 14px;
+  margin-left: 4px;
+}
+
+.section-intro {
+  margin-bottom: 24px;
+}
+
+.section-intro p {
+  color: var(--text-secondary);
 }
 
 .agent-info h3 {
@@ -945,6 +1128,74 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.judge-input-area {
+  display: none;
+  padding: 12px 20px;
+  background: rgba(15, 23, 42, 0.88);
+  border-top: 1px solid var(--border-color);
+  flex-direction: column;
+  gap: 8px;
+}
+
+.judge-input-label {
+  font-size: 0.75rem;
+  color: var(--color-primary);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.judge-input-row {
+  display: flex;
+  gap: 10px;
+}
+
+.judge-input {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--border-color);
+  background: rgba(255,255,255,0.05);
+  color: white;
+  font-size: 0.9rem;
+}
+
+.judge-suggestion {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.judge-suggestion svg {
+  width: 12px;
+  height: 12px;
+}
+
+.judge-suggestion span {
+  cursor: pointer;
+  text-decoration: underline;
+  color: var(--color-secondary);
+}
+
+.dialogue-prompt-list {
+  background: rgba(15, 23, 42, 0.88);
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  border-top: 1px solid var(--border-color);
+}
+
+.dialogue-index-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
 }
 
 .dialogue-bubble-container {
@@ -1372,6 +1623,17 @@ h1, h2, h3, h4, h5, h6 {
   padding-right: 28px;
 }
 
+.assessment-status {
+  color: #f8fafc;
+  margin-bottom: 4px;
+}
+
+.assessment-note {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
 .rubric-list {
   display: flex;
   flex-direction: column;
@@ -1415,6 +1677,50 @@ h1, h2, h3, h4, h5, h6 {
   background: rgba(148, 163, 184, 0.16);
   border-radius: 999px;
   overflow: hidden;
+}
+
+.rubric-fill {
+  width: 0%;
+  height: 100%;
+  transition: var(--transition-smooth);
+}
+
+.rubric-fill-primary {
+  background: var(--color-primary);
+}
+
+.rubric-fill-secondary {
+  background: var(--color-secondary);
+}
+
+.rubric-fill-success {
+  background: var(--color-success);
+}
+
+.rubric-fill-warning {
+  background: var(--color-warning);
+}
+
+.rubric-score-primary {
+  color: var(--color-primary);
+}
+
+.rubric-score-secondary {
+  color: var(--color-secondary);
+}
+
+.rubric-score-success {
+  color: var(--color-success);
+}
+
+.rubric-score-warning {
+  color: var(--color-warning);
+}
+
+.feedback-text {
+  color: var(--text-secondary);
+  line-height: 1.7;
+  font-size: 0.95rem;
 }
 
 @media (max-width: 900px) {
