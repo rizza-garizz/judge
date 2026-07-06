@@ -46,6 +46,12 @@ Quality gate Fase 4 tersedia di [`docs/phase-4-testing-qa.md`](docs/phase-4-test
 npm run qa
 ```
 
+Kesiapan deployment Fase 5 tersedia di [`docs/phase-5-deployment-readiness.md`](docs/phase-5-deployment-readiness.md). Setelah deploy ke staging/production, jalankan smoke test dengan:
+
+```bash
+SMOKE_BASE_URL=https://domain-produksi.example SMOKE_API_TOKEN=<token> npm run smoke:production
+```
+
 ### Opsi 1: Menjalankan Langsung (Local)
 1. *Clone* repositori ini:
    ```bash

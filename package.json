@@ -6,9 +6,10 @@
   "scripts": {
     "start": "node backend/server.js",
     "dev": "node backend/server.js",
-    "check": "node --check app.js && node --check js/api.js && node --check backend/config.js && node --check backend/server.js && node --check backend/storage.js && node --check scripts/phase4-qa.js",
+    "check": "node --check app.js && node --check js/api.js && node --check backend/config.js && node --check backend/server.js && node --check backend/storage.js && node --check scripts/phase4-qa.js && node --check scripts/production-smoke.js",
     "test": "node scripts/phase4-qa.js",
-    "qa": "npm run check && npm test"
+    "qa": "npm run check && npm test",
+    "smoke:production": "node scripts/production-smoke.js"
   },
   "engines": {
     "node": ">=18"
