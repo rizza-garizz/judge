@@ -38,6 +38,8 @@ npm run dev
 
 Buka `http://127.0.0.1:4000` untuk menjalankan frontend melalui backend dan menyimpan progres ke storage development.
 
+Hardening produksi Fase 3 tersedia di [`docs/phase-3-production-hardening.md`](docs/phase-3-production-hardening.md). Konfigurasi runtime dapat disalin dari `.env.example`; production mode mewajibkan `API_AUTH_MODE=token`, `API_TOKEN` minimal 24 karakter, dan `CORS_ORIGIN` eksplisit.
+
 ### Opsi 1: Menjalankan Langsung (Local)
 1. *Clone* repositori ini:
    ```bash

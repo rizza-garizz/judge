@@ -36,6 +36,7 @@ Bahasakan ulang pesan tersebut dengan gaya bahasa hukum formal Indonesia yang na
 const BACKEND_BASE_URL = window.HAKIMPINTAR_API_BASE_URL || "http://127.0.0.1:4000";
 const BACKEND_TIMEOUT_MS = 3000;
 const DEV_USER_STORAGE_KEY = "hakimpintar.devUserId";
+const API_TOKEN_STORAGE_KEY = "hakimpintar.apiToken";
 
 function getDevUserId() {
   try {
@@ -48,9 +49,20 @@ function getDevUserId() {
   return "dev-judge";
 }
 
+function getApiToken() {
+  if (window.HAKIMPINTAR_API_TOKEN) return window.HAKIMPINTAR_API_TOKEN;
+  try {
+    return localStorage.getItem(API_TOKEN_STORAGE_KEY) || "";
+  } catch (error) {
+    console.warn("API token storage unavailable:", error);
+    return "";
+  }
+}
+
 async function fetchBackend(path, options = {}) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), BACKEND_TIMEOUT_MS);
+  const apiToken = getApiToken();
 
   try {
     const res = await fetch(`${BACKEND_BASE_URL}${path}`, {
@@ -59,6 +71,7 @@ async function fetchBackend(path, options = {}) {
       headers: {
         "Content-Type": "application/json",
         "X-Dev-User-Id": getDevUserId(),
+        ...(apiToken ? { Authorization: `Bearer ${apiToken}` } : {}),
         ...(options.headers || {})
       }
     });
