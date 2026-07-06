@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="HakimPintar AI adalah simulator peradilan pidana interaktif berbasis Multi-Agent AI. Latih kemampuan hakim pemula dalam menangani perkara pencurian dengan pemberatan menggunakan KUHP 2023 dan KUHAP 2025.">
+  <meta name="description" content="HakimPintar AI adalah platform praktikum peradilan pidana untuk melatih hakim pemula menilai perkara pencurian dengan pemberatan berdasarkan skenario KUHP 2023 dan KUHAP 2025.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2216%22 fill=%22%230f172a%22/><path d=%22M50 18v52M30 30h40M34 70h32M28 82h44%22 stroke=%22%232563eb%22 stroke-width=%228%22 stroke-linecap=%22round%22/></svg>">
-  <title>HakimPintar AI - Simulator Peradilan Pidana Multi-Agent</title>
+  <title>HakimPintar AI - Platform Praktikum Peradilan Pidana</title>
   
   <!-- Leaflet Map CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
@@ -69,7 +69,7 @@
       
       <div class="sidebar-footer">
         <p>© 2026 HakimPintar AI</p>
-        <p>Edisi Multi-Agent KUHP 2023</p>
+        <p>Edisi Praktikum KUHP 2023</p>
       </div>
     </aside>
 
@@ -116,7 +116,7 @@
             </p>
           </div>
 
-          <div class="grid-3" style="margin-bottom: 32px;">
+          <div class="grid-3 overview-stats">
             <div class="glass-panel stat-card">
               <div class="stat-icon"><i data-lucide="play-circle"></i></div>
               <div class="stat-info">
@@ -144,12 +144,12 @@
             <!-- Instructions and guidelines -->
             <div class="glass-panel card">
               <h3 class="card-title"><i data-lucide="list-checks"></i> Petunjuk Praktikum</h3>
-              <ul style="color: var(--text-secondary); padding-left: 20px; font-size: 0.95rem;">
-                <li style="margin-bottom: 8px;">Ikuti alur dialog antar agen AI di tiap sesi persidangan.</li>
-                <li style="margin-bottom: 8px;">Sebagai Hakim Ketua, Anda wajib mengambil tindakan interaktif pada sesi-sesi penting (Putusan Sela, validasi CCTV, analisis lokasi GPS, dan amar putusan).</li>
-                <li style="margin-bottom: 8px;">Pilihan putusan Anda (menerapkan pidana penjara tradisional atau pidana alternatif kerja sosial di KUHP 2023) akan dinilai secara otomatis di akhir praktikum.</li>
+              <ul class="enterprise-list">
+                <li>Ikuti alur pemeriksaan pada setiap sesi persidangan.</li>
+                <li>Ambil keputusan pada titik kendali utama: putusan sela, validasi CCTV, analisis GPS/BTS, dan amar putusan.</li>
+                <li>Hasil akhir dinilai berdasarkan rubrik alat bukti, hukum acara, penerapan pasal, dan proporsionalitas pemidanaan.</li>
               </ul>
-              <div style="margin-top: 24px;">
+              <div class="card-action">
                 <button class="btn btn-primary" onclick="switchTab('tab-courtroom')">
                   Masuk Ruang Sidang <i data-lucide="arrow-right"></i>
                 </button>
@@ -159,18 +159,18 @@
             <!-- Active Case Details -->
             <div class="glass-panel card">
               <h3 class="card-title"><i data-lucide="file-text"></i> Perkara Aktif: Pencurian dengan Pemberatan</h3>
-              <table style="width: 100%; border-collapse: collapse; font-size: 0.875rem; color: var(--text-secondary);">
-                <tr style="border-bottom: 1px solid var(--border-color);">
-                  <td style="padding: 8px 0; font-weight: bold;">Terdakwa</td>
-                  <td style="padding: 8px 0; color: white;">Adi Saputra</td>
+              <table class="case-table">
+                <tr>
+                  <td>Terdakwa</td>
+                  <td>Adi Saputra</td>
                 </tr>
-                <tr style="border-bottom: 1px solid var(--border-color);">
-                  <td style="padding: 8px 0; font-weight: bold;">Dakwaan Utama</td>
-                  <td style="padding: 8px 0; color: white;">Pasal 477 ayat (1) KUHP Baru 2023</td>
+                <tr>
+                  <td>Dakwaan Utama</td>
+                  <td>Pasal 477 ayat (1) KUHP Baru 2023</td>
                 </tr>
-                <tr style="border-bottom: 1px solid var(--border-color);">
-                  <td style="padding: 8px 0; font-weight: bold;">Kasus Posisi</td>
-                  <td style="padding: 8px 0; color: white; line-height: 1.4;">Mengambil tas berisi uang Rp 15 juta dari kasir dengan merusak laci minimarket di malam hari.</td>
+                <tr>
+                  <td>Kasus Posisi</td>
+                  <td>Mengambil tas berisi uang Rp 15 juta dari kasir dengan merusak laci minimarket di malam hari.</td>
                 </tr>
               </table>
             </div>
@@ -291,23 +291,23 @@
           <div class="glass-panel card" style="margin-bottom: 28px; padding: 24px;">
             <div class="section-kicker">Konfigurasi Simulasi</div>
             <h2 style="font-size: 1.45rem; margin: 4px 0 8px;">Arsitektur Peran Persidangan</h2>
-            <p style="color: var(--text-secondary); font-size: 0.95rem; max-width: 860px;">Sistem ini dibangun dengan arsitektur <strong style="color:white;">6 agen AI independen</strong> yang terkoordinasi. Setiap agen memiliki Profile Module, Memory Module (short-term &amp; long-term), Strategy Module, Legal Retriever RAG, dan LLM Engine yang dikonfigurasi sesuai perannya.</p>
+            <p style="color: var(--text-secondary); font-size: 0.95rem; max-width: 860px;">Sistem ini menggunakan konfigurasi peran terstruktur untuk memandu dialog persidangan. Setiap peran memiliki mandat, konteks perkara, strategi pemeriksaan, sumber rujukan, dan model respons yang terdokumentasi.</p>
           </div>
 
           <!-- Agent Roster Summary Table -->
           <div class="glass-panel card" style="margin-bottom: 28px; padding: 0; overflow: hidden;">
             <div style="padding: 20px 24px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 10px;">
               <i data-lucide="table" style="color: var(--color-primary);"></i>
-              <h3 style="font-size: 1.05rem; color: white;">Daftar Agen AI — Fungsi &amp; Model</h3>
+              <h3 style="font-size: 1.05rem; color: white;">Daftar Peran — Fungsi &amp; Model Respons</h3>
             </div>
             <div style="overflow-x: auto;">
               <table id="agent-roster-table" style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">
                 <thead>
                   <tr style="background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border-color);">
-                    <th style="padding: 12px 20px; text-align: left; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em;">Agen</th>
+                    <th style="padding: 12px 20px; text-align: left; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em;">Peran</th>
                     <th style="padding: 12px 20px; text-align: left; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em;">Fungsi Utama</th>
-                    <th style="padding: 12px 20px; text-align: left; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em;">LLM Model</th>
-                    <th style="padding: 12px 20px; text-align: left; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em;">Suhu</th>
+                    <th style="padding: 12px 20px; text-align: left; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em;">Model Respons</th>
+                    <th style="padding: 12px 20px; text-align: left; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em;">Kontrol</th>
                   </tr>
                 </thead>
                 <tbody id="agent-roster-tbody">
@@ -322,11 +322,11 @@
             <div class="agent-avatar-circle" style="width: 48px; height: 48px; font-size: 0.95rem;">AI</div>
             <div>
               <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
-                <h3 style="color: white; font-size: 1.1rem;">ARIA — AI Judicial Assistant</h3>
+                <h3 style="color: white; font-size: 1.1rem;">ARIA — Asisten Analisis Yudisial</h3>
                 <span class="badge badge-secondary">Asisten</span>
-                <span class="badge" style="background: rgba(99,102,241,0.15); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.3); font-size: 0.65rem;">Claude Sonnet · Thinking Mode</span>
+                <span class="badge badge-primary" style="font-size: 0.65rem;">Model Analitis</span>
               </div>
-              <p style="color: var(--text-secondary); font-size: 0.875rem; line-height: 1.5; max-width: 900px;">Hakim Asisten AI berbasis <strong style="color:white">Claude Sonnet (Extended Thinking)</strong> yang beroperasi di balik layar. ARIA secara otomatis melakukan <em>cross-referencing</em> antara keterangan saksi, log GPS/BTS, nilai hash CCTV, dan corpus KUHP 2023 / KUHAP 2025 — kemudian menyajikan draft konsideran putusan yang terstruktur kepada Hakim Ketua.</p>
+              <p style="color: var(--text-secondary); font-size: 0.875rem; line-height: 1.5; max-width: 900px;">ARIA membantu meninjau kesesuaian keterangan saksi, log GPS/BTS, nilai hash CCTV, dan rujukan hukum dalam skenario. Hasilnya digunakan sebagai bahan latihan penyusunan pertimbangan, bukan pengganti penilaian hakim.</p>
             </div>
           </div>
 

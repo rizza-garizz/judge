@@ -377,6 +377,55 @@ h1, h2, h3, h4, h5, h6 {
   margin-bottom: 16px;
 }
 
+.overview-stats {
+  margin-bottom: 32px;
+}
+
+.enterprise-list {
+  color: var(--text-secondary);
+  padding-left: 20px;
+  font-size: 0.94rem;
+}
+
+.enterprise-list li {
+  margin-bottom: 8px;
+}
+
+.card-action {
+  margin-top: 24px;
+}
+
+.case-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.case-table tr {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.case-table tr:last-child {
+  border-bottom: none;
+}
+
+.case-table td {
+  padding: 9px 0;
+  vertical-align: top;
+}
+
+.case-table td:first-child {
+  width: 34%;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.case-table td:last-child {
+  color: #f8fafc;
+  line-height: 1.45;
+}
+
 .overview-brief {
   padding: 24px;
   margin-bottom: 28px;

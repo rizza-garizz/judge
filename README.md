@@ -1,22 +1,22 @@
-# HakimPintar AI - Simulator Peradilan Pidana Multi-Agent ⚖️
+# HakimPintar AI - Platform Praktikum Peradilan Pidana
 
-HakimPintar AI adalah sebuah aplikasi web interaktif yang mensimulasikan ruang persidangan pidana di Indonesia dengan menggunakan arsitektur *Multi-Agent AI*. Aplikasi ini dirancang sebagai *sandbox* interaktif untuk melatih calon hakim atau praktisi hukum dalam mengambil keputusan strategis di persidangan.
+HakimPintar AI adalah aplikasi web interaktif untuk praktikum ruang persidangan pidana di Indonesia. Aplikasi ini dirancang sebagai lingkungan latihan terstruktur bagi calon hakim atau praktisi hukum dalam mengambil keputusan strategis di persidangan.
 
-Simulasi ini difokuskan pada penerapan **KUHP Baru (UU No. 1/2023)** dan **KUHAP Baru (2025)** terkait kasus pencurian dengan pemberatan, lengkap dengan interaksi AI yang berperan sebagai Jaksa Penuntut Umum, Penasihat Hukum, Terdakwa, dan Saksi Ahli Digital Forensik.
+Simulasi ini difokuskan pada penerapan **KUHP Baru (UU No. 1/2023)** dan **KUHAP Baru (2025)** terkait kasus pencurian dengan pemberatan, lengkap dengan konfigurasi peran sebagai Jaksa Penuntut Umum, Penasihat Hukum, Terdakwa, dan Saksi Ahli Digital Forensik.
 
 ## ✨ Fitur Utama
 
-- **Interaksi Multi-Agent AI**: Setiap agen (JPU, Penasihat Hukum, Terdakwa, Saksi) dilengkapi dengan *Profile*, *Memory*, *Strategy*, dan modul *Legal RAG* yang membuat percakapan sidang terasa nyata dan dinamis.
+- **Konfigurasi Peran Persidangan**: Setiap peran (JPU, Penasihat Hukum, Terdakwa, Saksi) dilengkapi mandat, konteks perkara, strategi, dan rujukan hukum.
 - **Workflow Persidangan (8 Sesi)**: Terdiri dari tahap Pembacaan Dakwaan, Eksepsi, Pemeriksaan Saksi, Validasi CCTV & GPS, hingga Amar Putusan.
 - **Validasi Bukti Forensik Interaktif**: Terdapat modul sandbox untuk melakukan *AI Enhancement* (Deblur & Super Res) pada barang bukti CCTV dan verifikasi koordinat *GPS/BTS* melalui *timeline map*.
-- **Asisten AI ARIA**: Analisis fakta sidang secara real-time yang menyarankan pertimbangan hukum yang komprehensif untuk Hakim Ketua.
+- **Asisten Analisis ARIA**: Menyajikan bahan latihan pertimbangan hukum berdasarkan fakta sidang, bukti digital, dan rujukan skenario.
 - **Penilaian Otomatis (Grading System)**: Menghitung skor keadilan, kepatuhan KUHAP, ketepatan penerapan pasal KUHP 2023, dan evaluasi bukti digital di akhir simulasi.
 - **Komparasi Hukum**: Modul untuk membandingkan aturan di KUHP/KUHAP lama dan baru secara langsung.
 
 ## 🛠️ Teknologi yang Digunakan
 
 Aplikasi ini berjalan sepenuhnya di sisi klien (Client-Side) dan menggunakan pendekatan *vanilla* modern tanpa *build tools* yang berat:
-- **HTML5 & Vanilla CSS**: Desain UI premium menggunakan Glassmorphism, Micro-animations, CSS Variables, dan layout responsif.
+- **HTML5 & Vanilla CSS**: Antarmuka responsif dengan design token, layout dashboard, dan komponen sidang terstruktur.
 - **Vanilla JavaScript**: Menangani state management, logika agen, validasi, navigasi tab, dan *grading system*.
 - **Lucide Icons**: Koleksi ikon SVG yang ringan dan modern.
 - **Leaflet.js**: Integrasi peta interaktif untuk simulasi pelacakan koordinat GPS Terdakwa.

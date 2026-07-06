@@ -713,7 +713,7 @@ function loadActionWidget() {
     }
   }
   else if (appState.currentSession === 3) {
-    title.innerHTML = `<i data-lucide="video" style="color: var(--color-primary);"></i> Peningkatan CCTV AI`;
+    title.innerHTML = `<i data-lucide="video" style="color: var(--color-primary);"></i> Pemeriksaan Rekaman CCTV`;
     
     // CCTV Enhancer inside the action zone
     const cctvDiv = document.createElement("div");
@@ -727,7 +727,7 @@ function loadActionWidget() {
         <button class="btn btn-primary btn-outline" style="padding: 6px 12px; font-size: 0.75rem;" id="btn-court-deblur">Deblur</button>
         <button class="btn btn-primary btn-outline" style="padding: 6px 12px; font-size: 0.75rem;" id="btn-court-superres">Super Res</button>
         <button class="btn btn-primary" style="padding: 6px 16px; font-size: 0.8rem;" id="btn-court-process-cctv">
-          <i data-lucide="wand-2" style="width: 12px; height:12px;"></i> PROSES AI
+          <i data-lucide="wand-2" style="width: 12px; height:12px;"></i> PROSES REKAMAN
         </button>
       </div>
 
@@ -760,7 +760,7 @@ function loadActionWidget() {
           lucide.createIcons();
           document.getElementById("cctv-action-hash-res").innerText = "d41e21b0...a9f2";
           drawActionCCTV(true);
-          showToast("Bukti Diverifikasi", "Integritas hash CCTV tervalidasi setelah deblurring AI.", "success");
+          showToast("Bukti Diverifikasi", "Integritas hash CCTV tervalidasi setelah pemrosesan rekaman.", "success");
         }, 1500);
       });
 
@@ -1351,9 +1351,9 @@ function renderAgentProfiles() {
 
   // Model color scheme
   const modelColor = (model) => {
-    if (model.includes("Claude")) return { bg: "rgba(168,85,247,0.12)", color: "#c084fc", border: "rgba(168,85,247,0.3)" };
+    if (model.includes("Analitis")) return { bg: "rgba(37,99,235,0.12)", color: "#bfdbfe", border: "rgba(37,99,235,0.28)" };
     if (model.includes("GPT-4")) return { bg: "rgba(16,185,129,0.1)", color: "#34d399", border: "rgba(16,185,129,0.2)" };
-    return { bg: "rgba(99,102,241,0.1)", color: "#818cf8", border: "rgba(99,102,241,0.2)" };
+    return { bg: "rgba(148,163,184,0.1)", color: "#cbd5e1", border: "rgba(148,163,184,0.2)" };
   };
 
   // Temperature bar color
@@ -1435,29 +1435,29 @@ function renderAgentProfiles() {
       </div>
       
       <div style="width: 100%; margin-top: 16px; border-top: 1px solid var(--border-color); padding-top: 16px;">
-        <div style="font-size: 0.72rem; text-transform: uppercase; color: var(--color-primary); font-weight: 700; margin-bottom: 10px; letter-spacing: 0.05em;">⚙️ Modul Arsitektur Agen</div>
+        <div style="font-size: 0.72rem; text-transform: uppercase; color: var(--color-primary); font-weight: 700; margin-bottom: 10px; letter-spacing: 0.05em;">Konfigurasi Peran</div>
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; font-size: 0.78rem;">
           <div style="background: rgba(255,255,255,0.01); padding: 8px; border-radius: 6px; border: 1px solid var(--border-color);">
-            <strong style="color: white; display: block; margin-bottom: 3px; font-size: 0.72rem;">Profile:</strong>
+            <strong style="color: white; display: block; margin-bottom: 3px; font-size: 0.72rem;">Profil:</strong>
             <span style="color: var(--text-secondary); line-height: 1.3; display: block;">${ag.profileModule ? ag.profileModule.strategi : "Human-controlled."}</span>
           </div>
           <div style="background: rgba(255,255,255,0.01); padding: 8px; border-radius: 6px; border: 1px solid var(--border-color);">
-            <strong style="color: white; display: block; margin-bottom: 3px; font-size: 0.72rem;">Memory (LT):</strong>
+            <strong style="color: white; display: block; margin-bottom: 3px; font-size: 0.72rem;">Konteks:</strong>
             <span style="color: var(--text-secondary); line-height: 1.3; display: block;">${ag.memoryModule ? ag.memoryModule.longTerm : "Disimpan otomatis."}</span>
           </div>
           <div style="background: rgba(255,255,255,0.01); padding: 8px; border-radius: 6px; border: 1px solid var(--border-color);">
-            <strong style="color: white; display: block; margin-bottom: 3px; font-size: 0.72rem;">Strategy:</strong>
+            <strong style="color: white; display: block; margin-bottom: 3px; font-size: 0.72rem;">Strategi:</strong>
             <span style="color: var(--text-secondary); line-height: 1.3; display: block;">${ag.strategyModule ? ag.strategyModule.taktik : "-"}</span>
           </div>
           <div style="background: rgba(255,255,255,0.01); padding: 8px; border-radius: 6px; border: 1px solid var(--border-color);">
-            <strong style="color: white; display: block; margin-bottom: 3px; font-size: 0.72rem;">Legal RAG:</strong>
+            <strong style="color: white; display: block; margin-bottom: 3px; font-size: 0.72rem;">Rujukan Hukum:</strong>
             <div style="display: flex; flex-wrap: wrap; gap: 3px; margin-top: 2px;">
               ${ag.legalRetriever ? ag.legalRetriever.RAGAccess.map(doc => `<span style="background:rgba(99,102,241,0.1);color:#a5b4fc;border:1px solid rgba(99,102,241,0.2);border-radius:50px;padding:1px 7px;font-size:0.6rem;">${doc}</span>`).join("") : "-"}
             </div>
           </div>
         </div>
         <div style="background: ${mc.bg}; padding: 8px 12px; border-radius: 6px; border: 1px solid ${mc.border}; margin-top: 8px; display: flex; justify-content: space-between; align-items: center;">
-          <strong style="color: white; font-size: 0.75rem;">LLM Engine:</strong>
+          <strong style="color: white; font-size: 0.75rem;">Model Respons:</strong>
           <div style="display: flex; align-items: center; gap: 10px;">
             <span style="color: ${mc.color}; font-family: monospace; font-size: 0.72rem;">${ag.llmEngine ? ag.llmEngine.model : "-"}</span>
             <div style="display: flex; align-items: center; gap: 5px;">
