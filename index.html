@@ -20,7 +20,7 @@
     <div id="toast-container" class="toast-container"></div>
 
     <!-- Sidebar Navigation -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="app-sidebar" aria-label="Navigasi utama">
       <div class="sidebar-brand">
         <div class="brand-icon"><i data-lucide="scale"></i></div>
         <div class="brand-name">HakimPintar AI</div>
@@ -74,12 +74,14 @@
     </aside>
 
     <!-- Main Content Area -->
+    <button class="sidebar-backdrop" id="sidebar-backdrop" type="button" aria-label="Tutup navigasi"></button>
+
     <main class="main-content">
       
       <!-- Top Sticky Header -->
       <header class="main-header">
         <div class="header-title-group">
-          <button class="burger-menu" id="sidebar-toggle">
+          <button class="burger-menu" id="sidebar-toggle" aria-label="Buka navigasi" aria-controls="app-sidebar" aria-expanded="false">
             <i data-lucide="menu"></i>
           </button>
           <h2 class="header-title" id="current-tab-title">Ringkasan Praktikum</h2>

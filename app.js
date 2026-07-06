@@ -49,12 +49,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Mobile menu sidebar toggle
   const sidebarToggle = document.getElementById("sidebar-toggle");
+  const sidebarBackdrop = document.getElementById("sidebar-backdrop");
   const sidebar = document.querySelector(".sidebar");
+  const setSidebarOpen = (isOpen) => {
+    if (!sidebar) return;
+    sidebar.classList.toggle("active", isOpen);
+    document.body.classList.toggle("is-sidebar-open", isOpen);
+    if (sidebarToggle) {
+      sidebarToggle.setAttribute("aria-expanded", String(isOpen));
+      sidebarToggle.setAttribute("aria-label", isOpen ? "Tutup navigasi" : "Buka navigasi");
+    }
+  };
+
+  window.setMobileSidebarOpen = setSidebarOpen;
+
   if (sidebarToggle) {
     sidebarToggle.addEventListener("click", () => {
-      sidebar.classList.toggle("active");
+      setSidebarOpen(!sidebar.classList.contains("active"));
     });
   }
+  if (sidebarBackdrop) {
+    sidebarBackdrop.addEventListener("click", () => setSidebarOpen(false));
+  }
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") setSidebarOpen(false);
+  });
 
   const resetBtn = document.getElementById("btn-reset-simulation");
   if (resetBtn) {
@@ -129,7 +148,11 @@ function switchTab(tabId) {
   }
 
   // Close mobile sidebar if open
-  document.querySelector(".sidebar").classList.remove("active");
+  if (typeof window.setMobileSidebarOpen === "function") {
+    window.setMobileSidebarOpen(false);
+  } else {
+    document.querySelector(".sidebar")?.classList.remove("active");
+  }
 
   // Invalidate Map size if tab is active (ensures Leaflet renders fully sized tiles)
   if (tabId === "tab-courtroom" && appState.currentSession === 5 && appState.map) {
@@ -1372,10 +1395,7 @@ function renderAgentProfiles() {
     // ── Roster Table Row ──
     if (!isHuman && rosterBody) {
       const tr = document.createElement("tr");
-      tr.style.borderBottom = "1px solid var(--border-color)";
-      tr.style.transition = "background 0.2s";
-      tr.addEventListener("mouseenter", () => tr.style.background = "rgba(255,255,255,0.02)");
-      tr.addEventListener("mouseleave", () => tr.style.background = "transparent");
+      tr.className = "agent-roster-row";
 
       tr.innerHTML = `
         <td style="padding: 14px 20px;">
