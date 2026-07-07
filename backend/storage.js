@@ -56,6 +56,18 @@ function nowIso() {
   return new Date().toISOString();
 }
 
+function appendAuditLog(db, { userId, action, meta = {} }) {
+  const entry = {
+    id: crypto.randomUUID(),
+    userId,
+    action,
+    createdAt: nowIso(),
+    meta
+  };
+  db.auditLogs.push(entry);
+  return entry;
+}
+
 function getUser(userId) {
   const db = readDb();
   return db.users.find((user) => user.id === userId) || null;
@@ -104,11 +116,9 @@ function saveSimulation(userId, snapshot) {
     updatedAt: savedAt
   };
 
-  db.auditLogs.push({
-    id: crypto.randomUUID(),
+  appendAuditLog(db, {
     userId,
     action: "simulation.save",
-    createdAt: savedAt,
     meta: {
       currentSession: snapshot?.currentSession || null,
       finalScore: snapshot?.finalScore || 0
@@ -122,14 +132,28 @@ function saveSimulation(userId, snapshot) {
 function resetSimulation(userId) {
   const db = readDb();
   delete db.simulations[userId];
-  db.auditLogs.push({
-    id: crypto.randomUUID(),
+  appendAuditLog(db, {
     userId,
     action: "simulation.reset",
-    createdAt: nowIso(),
     meta: {}
   });
   writeDb(db);
+}
+
+function recordAuditLog(userId, action, meta = {}) {
+  const db = readDb();
+  const entry = appendAuditLog(db, { userId, action, meta });
+  writeDb(db);
+  return entry;
+}
+
+function getAuditLogs(userId, { limit = 100 } = {}) {
+  const db = readDb();
+  const safeLimit = Math.min(Math.max(Number(limit) || 100, 1), 500);
+  return db.auditLogs
+    .filter((entry) => entry.userId === userId)
+    .slice(-safeLimit)
+    .reverse();
 }
 
 function getReport(userId) {
@@ -148,11 +172,70 @@ function getReport(userId) {
   };
 }
 
+function getComplianceExport(userId, { auditLimit = 500 } = {}) {
+  const db = readDb();
+  const user = db.users.find((item) => item.id === userId) || null;
+  const simulation = db.simulations[userId] || null;
+  const snapshot = simulation?.snapshot || {};
+
+  return {
+    generatedAt: nowIso(),
+    user: user ? {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt || null
+    } : {
+      id: userId,
+      name: null,
+      email: null,
+      role: "unknown",
+      createdAt: null,
+      updatedAt: null
+    },
+    simulation,
+    report: simulation ? {
+      simulationId: simulation.id,
+      userId,
+      updatedAt: simulation.updatedAt,
+      currentSession: snapshot.currentSession || 1,
+      finalScore: snapshot.finalScore || 0,
+      userChoices: snapshot.userChoices || {},
+      evaluationDetails: snapshot.evaluationDetails || {}
+    } : null,
+    auditLogs: db.auditLogs
+      .filter((entry) => entry.userId === userId)
+      .slice(-(Math.min(Math.max(Number(auditLimit) || 500, 1), 1000)))
+  };
+}
+
+function pruneAuditLogs(retentionDays) {
+  const safeDays = Math.max(Number(retentionDays) || 1, 1);
+  const cutoff = Date.now() - safeDays * 24 * 60 * 60 * 1000;
+  const db = readDb();
+  const before = db.auditLogs.length;
+
+  db.auditLogs = db.auditLogs.filter((entry) => {
+    const createdAt = Date.parse(entry.createdAt);
+    return Number.isNaN(createdAt) || createdAt >= cutoff;
+  });
+
+  const pruned = before - db.auditLogs.length;
+  if (pruned > 0) writeDb(db);
+  return { pruned, retained: db.auditLogs.length };
+}
+
 module.exports = {
   getUser,
   upsertUser,
   getSimulation,
   saveSimulation,
   resetSimulation,
-  getReport
+  getReport,
+  recordAuditLog,
+  getAuditLogs,
+  getComplianceExport,
+  pruneAuditLogs
 };

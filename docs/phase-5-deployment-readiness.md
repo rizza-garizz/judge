@@ -42,6 +42,7 @@ REQUEST_LOGGING=true
 RATE_LIMIT_WINDOW_MS=60000
 RATE_LIMIT_MAX=120
 MAX_BODY_BYTES=1048576
+AUDIT_RETENTION_DAYS=365
 ```
 
 ## Pre-Deploy Checklist
@@ -114,6 +115,7 @@ Minimum production monitoring:
 - Error-rate alert untuk status `5xx`.
 - Alert untuk lonjakan `401`, `403`, dan `429`.
 - Log retention minimal 14 hari untuk audit terbatas.
+- Audit retention aplikasi dikontrol lewat `AUDIT_RETENTION_DAYS`.
 - Disk usage alert untuk lokasi `backend/data`.
 - Deploy log berisi commit hash dan hasil smoke test.
 

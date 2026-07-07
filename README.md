@@ -52,6 +52,8 @@ Kesiapan deployment Fase 5 tersedia di [`docs/phase-5-deployment-readiness.md`](
 SMOKE_BASE_URL=https://domain-produksi.example SMOKE_API_TOKEN=<token> npm run smoke:production
 ```
 
+Kontrol audit dan compliance Fase 6 tersedia di [`docs/phase-6-compliance-auditability.md`](docs/phase-6-compliance-auditability.md). Backend menyediakan endpoint audit dan compliance export untuk user aktif.
+
 ### Opsi 1: Menjalankan Langsung (Local)
 1. *Clone* repositori ini:
    ```bash

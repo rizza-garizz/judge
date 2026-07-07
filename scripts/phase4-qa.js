@@ -203,6 +203,28 @@ test("development backend supports core simulation lifecycle", async () => {
     assert.strictEqual(report.res.status, 200);
     assert.strictEqual(report.body.report.finalScore, 88);
 
+    const audit = await fetchJson(`${baseUrl}/api/audit/current?limit=10`, {
+      headers: { "X-Dev-User-Id": userId }
+    });
+    assert.strictEqual(audit.res.status, 200);
+    assert(Array.isArray(audit.body.auditLogs), "Audit logs should be an array");
+    assert(
+      audit.body.auditLogs.some((entry) => entry.action === "simulation.save"),
+      "Audit logs should include simulation.save"
+    );
+    assert(
+      audit.body.auditLogs.some((entry) => entry.action === "report.view"),
+      "Audit logs should include report.view"
+    );
+
+    const compliance = await fetchJson(`${baseUrl}/api/compliance/export/current`, {
+      headers: { "X-Dev-User-Id": userId }
+    });
+    assert.strictEqual(compliance.res.status, 200);
+    assert.strictEqual(compliance.body.export.user?.id, userId);
+    assert.strictEqual(compliance.body.export.report.finalScore, 88);
+    assert(Array.isArray(compliance.body.export.auditLogs), "Compliance export should include audit logs");
+
     const reset = await fetchJson(`${baseUrl}/api/simulations/current`, {
       method: "DELETE",
       headers: { "X-Dev-User-Id": userId }

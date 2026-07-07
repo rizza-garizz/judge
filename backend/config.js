@@ -2,6 +2,7 @@ const DEFAULT_PORT = 4000;
 const DEFAULT_RATE_LIMIT_WINDOW_MS = 60_000;
 const DEFAULT_RATE_LIMIT_MAX = 120;
 const DEFAULT_MAX_BODY_BYTES = 1024 * 1024;
+const DEFAULT_AUDIT_RETENTION_DAYS = 365;
 
 function readInteger(name, fallback, { min, max } = {}) {
   const raw = process.env[name];
@@ -74,7 +75,8 @@ function buildConfig() {
     requestLogging: readBoolean("REQUEST_LOGGING", true),
     rateLimitWindowMs: readInteger("RATE_LIMIT_WINDOW_MS", DEFAULT_RATE_LIMIT_WINDOW_MS, { min: 1_000 }),
     rateLimitMax: readInteger("RATE_LIMIT_MAX", DEFAULT_RATE_LIMIT_MAX, { min: 1 }),
-    maxBodyBytes: readInteger("MAX_BODY_BYTES", DEFAULT_MAX_BODY_BYTES, { min: 1024 })
+    maxBodyBytes: readInteger("MAX_BODY_BYTES", DEFAULT_MAX_BODY_BYTES, { min: 1024 }),
+    auditRetentionDays: readInteger("AUDIT_RETENTION_DAYS", DEFAULT_AUDIT_RETENTION_DAYS, { min: 1 })
   };
 }
 

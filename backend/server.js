@@ -9,7 +9,11 @@ const {
   getSimulation,
   saveSimulation,
   resetSimulation,
-  getReport
+  getReport,
+  recordAuditLog,
+  getAuditLogs,
+  getComplianceExport,
+  pruneAuditLogs
 } = require("./storage");
 
 const ROOT_DIR = path.resolve(__dirname, "..");
@@ -230,6 +234,10 @@ async function handleApi(req, res, url) {
       email: body.email || "hakim.dev@hakimpintar.local",
       role: body.role || "peserta"
     });
+    recordAuditLog(user.id, "auth.dev-login", {
+      role: user.role,
+      requestId: req.requestId
+    });
     sendJson(req, res, 200, { ok: true, user });
     return true;
   }
@@ -267,8 +275,40 @@ async function handleApi(req, res, url) {
   }
 
   if (req.method === "GET" && url.pathname === "/api/reports/current") {
-    const report = getReport(getDevUserId(req));
+    const userId = getDevUserId(req);
+    const report = getReport(userId);
+    recordAuditLog(userId, "report.view", {
+      hasReport: Boolean(report),
+      requestId: req.requestId
+    });
     sendJson(req, res, 200, { ok: true, report });
+    return true;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/audit/current") {
+    const userId = getDevUserId(req);
+    const limit = url.searchParams.get("limit") || 100;
+    const auditLogs = getAuditLogs(userId, { limit });
+    sendJson(req, res, 200, {
+      ok: true,
+      retentionDays: config.auditRetentionDays,
+      auditLogs
+    });
+    return true;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/compliance/export/current") {
+    const userId = getDevUserId(req);
+    const exportPayload = getComplianceExport(userId);
+    recordAuditLog(userId, "compliance.export", {
+      requestId: req.requestId,
+      hasSimulation: Boolean(exportPayload.simulation)
+    });
+    sendJson(req, res, 200, {
+      ok: true,
+      retentionDays: config.auditRetentionDays,
+      export: exportPayload
+    });
     return true;
   }
 
@@ -339,9 +379,14 @@ server.on("error", (error) => {
   process.exit(1);
 });
 
+const auditPruneResult = pruneAuditLogs(config.auditRetentionDays);
+
 server.listen(config.port, config.host, () => {
   console.log(`HakimPintar backend running at http://${config.host}:${config.port}`);
   console.log(`Environment=${config.nodeEnv} API_AUTH_MODE=${config.apiAuthMode}`);
+  if (auditPruneResult.pruned > 0) {
+    console.log(`Audit retention pruned ${auditPruneResult.pruned} entries`);
+  }
 });
 
 function shutdown(signal) {
