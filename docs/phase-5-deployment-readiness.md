@@ -35,6 +35,7 @@ Jika environment masih memakai `API_AUTH_MODE=dev`, `SMOKE_API_TOKEN` boleh diko
 NODE_ENV=production
 PORT=4000
 HOST=0.0.0.0
+DATA_DIR=/var/lib/hakimpintar
 API_AUTH_MODE=token
 API_TOKEN=<random-secret-minimal-24-karakter>
 CORS_ORIGIN=https://domain-produksi.example
@@ -54,7 +55,9 @@ AUDIT_RETENTION_DAYS=365
 - Port service sesuai target platform.
 - Health endpoint dapat diakses dari load balancer atau uptime checker.
 - Lokasi storage `backend/data` punya permission tulis jika masih memakai JSON storage.
+- Jika memakai volume production, set `DATA_DIR` ke path volume yang persist.
 - Backup folder `backend/data` tersedia sebelum deploy baru.
+- `npm run data:doctor` pass sebelum deploy.
 
 ## Deploy Procedure
 
@@ -68,7 +71,8 @@ AUDIT_RETENTION_DAYS=365
 
 4. Pastikan log startup berisi `Environment=production API_AUTH_MODE=token`.
 5. Jalankan production smoke test.
-6. Catat commit hash, waktu deploy, environment, dan hasil smoke test.
+6. Jalankan `npm run data:doctor`.
+7. Catat commit hash, waktu deploy, environment, dan hasil smoke test.
 
 ## Post-Deploy Verification
 
@@ -79,6 +83,7 @@ AUDIT_RETENTION_DAYS=365
 - `/api/simulations/current` dengan bearer token valid mengembalikan `200`.
 - Header `x-request-id`, `x-frame-options`, dan `x-content-type-options` muncul.
 - Log request berbentuk JSON dan memuat `requestId`, `method`, `path`, `status`, dan `durationMs`.
+- `npm run data:doctor` mengembalikan `ok=true`.
 
 ## Rollback Procedure
 

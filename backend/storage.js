@@ -1,11 +1,18 @@
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
+const config = require("./config");
 
-const DATA_DIR = path.join(__dirname, "data");
+const DB_SCHEMA_VERSION = 1;
+const DATA_DIR = path.resolve(__dirname, "..", config.dataDir);
 const DB_FILE = path.join(DATA_DIR, "dev-db.json");
 
 const DEFAULT_DB = {
+  metadata: {
+    schemaVersion: DB_SCHEMA_VERSION,
+    createdAt: new Date(0).toISOString(),
+    updatedAt: new Date(0).toISOString()
+  },
   users: [
     {
       id: "dev-judge",
@@ -26,29 +33,47 @@ function ensureDataDir() {
 function readDb() {
   ensureDataDir();
   if (!fs.existsSync(DB_FILE)) {
-    writeDb(DEFAULT_DB);
-    return structuredClone(DEFAULT_DB);
+    const initialDb = normalizeDb(DEFAULT_DB);
+    writeDb(initialDb);
+    return structuredClone(initialDb);
   }
 
   try {
     const parsed = JSON.parse(fs.readFileSync(DB_FILE, "utf8"));
-    return {
-      users: Array.isArray(parsed.users) ? parsed.users : DEFAULT_DB.users,
-      simulations: parsed.simulations && typeof parsed.simulations === "object" ? parsed.simulations : {},
-      auditLogs: Array.isArray(parsed.auditLogs) ? parsed.auditLogs : []
-    };
+    const normalized = normalizeDb(parsed);
+    if (JSON.stringify(parsed.metadata) !== JSON.stringify(normalized.metadata)) {
+      writeDb(normalized);
+    }
+    return normalized;
   } catch (error) {
     const backupFile = `${DB_FILE}.corrupt-${Date.now()}`;
     fs.renameSync(DB_FILE, backupFile);
-    writeDb(DEFAULT_DB);
-    return structuredClone(DEFAULT_DB);
+    const initialDb = normalizeDb(DEFAULT_DB);
+    writeDb(initialDb);
+    return structuredClone(initialDb);
   }
+}
+
+function normalizeDb(db) {
+  const now = nowIso();
+  return {
+    metadata: {
+      schemaVersion: DB_SCHEMA_VERSION,
+      createdAt: db?.metadata?.createdAt || now,
+      updatedAt: db?.metadata?.updatedAt || now
+    },
+    users: Array.isArray(db?.users) ? db.users : DEFAULT_DB.users,
+    simulations: db?.simulations && typeof db.simulations === "object" && !Array.isArray(db.simulations) ? db.simulations : {},
+    auditLogs: Array.isArray(db?.auditLogs) ? db.auditLogs : []
+  };
 }
 
 function writeDb(db) {
   ensureDataDir();
   const tmpFile = `${DB_FILE}.tmp`;
-  fs.writeFileSync(tmpFile, JSON.stringify(db, null, 2));
+  const normalized = normalizeDb(db);
+  normalized.metadata.updatedAt = nowIso();
+  fs.writeFileSync(tmpFile, JSON.stringify(normalized, null, 2));
   fs.renameSync(tmpFile, DB_FILE);
 }
 
@@ -227,6 +252,86 @@ function pruneAuditLogs(retentionDays) {
   return { pruned, retained: db.auditLogs.length };
 }
 
+function getStorageInfo() {
+  const db = readDb();
+  const stats = fs.existsSync(DB_FILE) ? fs.statSync(DB_FILE) : null;
+  return {
+    dataDir: DATA_DIR,
+    dbFile: DB_FILE,
+    schemaVersion: db.metadata.schemaVersion,
+    users: db.users.length,
+    simulations: Object.keys(db.simulations).length,
+    auditLogs: db.auditLogs.length,
+    bytes: stats?.size || 0,
+    updatedAt: db.metadata.updatedAt
+  };
+}
+
+function checkIntegrity() {
+  const db = readDb();
+  const issues = [];
+  const userIds = new Set();
+  const allowedRoles = new Set(["admin", "penguji", "peserta"]);
+
+  db.users.forEach((user, index) => {
+    if (!user.id) issues.push(`users[${index}] missing id`);
+    if (user.id && userIds.has(user.id)) issues.push(`duplicate user id: ${user.id}`);
+    if (user.id) userIds.add(user.id);
+    if (!allowedRoles.has(user.role)) issues.push(`user ${user.id || index} has invalid role`);
+  });
+
+  Object.entries(db.simulations).forEach(([userId, simulation]) => {
+    if (!simulation.id) issues.push(`simulation ${userId} missing id`);
+    if (simulation.userId !== userId) issues.push(`simulation key ${userId} mismatches userId ${simulation.userId}`);
+    if (!simulation.snapshot || typeof simulation.snapshot !== "object") issues.push(`simulation ${userId} missing snapshot`);
+  });
+
+  db.auditLogs.forEach((entry, index) => {
+    if (!entry.id) issues.push(`auditLogs[${index}] missing id`);
+    if (!entry.userId) issues.push(`auditLogs[${index}] missing userId`);
+    if (!entry.action) issues.push(`auditLogs[${index}] missing action`);
+    if (Number.isNaN(Date.parse(entry.createdAt))) issues.push(`auditLogs[${index}] invalid createdAt`);
+  });
+
+  return {
+    ok: issues.length === 0,
+    issues,
+    info: getStorageInfo()
+  };
+}
+
+function createBackup({ label = "" } = {}) {
+  const db = readDb();
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const safeLabel = label ? `-${String(label).replace(/[^a-zA-Z0-9._-]/g, "-").slice(0, 48)}` : "";
+  const backupFile = path.join(DATA_DIR, `dev-db.backup-${stamp}${safeLabel}.json`);
+
+  fs.writeFileSync(backupFile, JSON.stringify(db, null, 2));
+  return {
+    backupFile,
+    bytes: fs.statSync(backupFile).size,
+    schemaVersion: db.metadata.schemaVersion
+  };
+}
+
+function restoreBackup(backupFile) {
+  const resolvedBackup = path.resolve(backupFile);
+  if (!fs.existsSync(resolvedBackup)) {
+    throw new Error(`Backup file not found: ${resolvedBackup}`);
+  }
+
+  const parsed = JSON.parse(fs.readFileSync(resolvedBackup, "utf8"));
+  const normalized = normalizeDb(parsed);
+  const currentBackup = fs.existsSync(DB_FILE) ? createBackup({ label: "pre-restore" }) : null;
+  writeDb(normalized);
+
+  return {
+    restoredFrom: resolvedBackup,
+    preRestoreBackup: currentBackup?.backupFile || null,
+    integrity: checkIntegrity()
+  };
+}
+
 module.exports = {
   getUser,
   upsertUser,
@@ -237,5 +342,9 @@ module.exports = {
   recordAuditLog,
   getAuditLogs,
   getComplianceExport,
-  pruneAuditLogs
+  pruneAuditLogs,
+  getStorageInfo,
+  checkIntegrity,
+  createBackup,
+  restoreBackup
 };

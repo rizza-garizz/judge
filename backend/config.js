@@ -44,6 +44,14 @@ function readHost() {
   return host;
 }
 
+function readDataDir() {
+  const dataDir = process.env.DATA_DIR || "backend/data";
+  if (dataDir.includes("\0")) {
+    throw new Error("DATA_DIR contains invalid characters");
+  }
+  return dataDir;
+}
+
 function buildConfig() {
   const nodeEnv = process.env.NODE_ENV || "development";
   const isProduction = nodeEnv === "production";
@@ -69,6 +77,7 @@ function buildConfig() {
     isProduction,
     port: readInteger("PORT", DEFAULT_PORT, { min: 1, max: 65_535 }),
     host: readHost(),
+    dataDir: readDataDir(),
     apiAuthMode,
     apiToken,
     corsOrigins,

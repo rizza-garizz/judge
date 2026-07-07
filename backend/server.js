@@ -13,7 +13,9 @@ const {
   recordAuditLog,
   getAuditLogs,
   getComplianceExport,
-  pruneAuditLogs
+  pruneAuditLogs,
+  getStorageInfo,
+  checkIntegrity
 } = require("./storage");
 
 const ROOT_DIR = path.resolve(__dirname, "..");
@@ -210,12 +212,19 @@ async function handleApi(req, res, url) {
   }
 
   if (req.method === "GET" && url.pathname === "/health") {
+    const storage = getStorageInfo();
     sendJson(req, res, 200, {
       ok: true,
       service: "hakimpintar-backend",
       version: "0.2.0",
       environment: config.nodeEnv,
       authMode: config.apiAuthMode,
+      storage: {
+        schemaVersion: storage.schemaVersion,
+        users: storage.users,
+        simulations: storage.simulations,
+        auditLogs: storage.auditLogs
+      },
       time: new Date().toISOString()
     });
     return true;
@@ -308,6 +317,15 @@ async function handleApi(req, res, url) {
       ok: true,
       retentionDays: config.auditRetentionDays,
       export: exportPayload
+    });
+    return true;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/admin/storage/integrity") {
+    const integrity = checkIntegrity();
+    sendJson(req, res, integrity.ok ? 200 : 500, {
+      ok: integrity.ok,
+      integrity
     });
     return true;
   }

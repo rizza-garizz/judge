@@ -54,6 +54,12 @@ SMOKE_BASE_URL=https://domain-produksi.example SMOKE_API_TOKEN=<token> npm run s
 
 Kontrol audit dan compliance Fase 6 tersedia di [`docs/phase-6-compliance-auditability.md`](docs/phase-6-compliance-auditability.md). Backend menyediakan endpoint audit dan compliance export untuk user aktif.
 
+Fondasi data production Fase 7 tersedia di [`docs/phase-7-production-data-platform.md`](docs/phase-7-production-data-platform.md). Jalankan integrity check storage dengan:
+
+```bash
+npm run data:doctor
+```
+
 ### Opsi 1: Menjalankan Langsung (Local)
 1. *Clone* repositori ini:
    ```bash

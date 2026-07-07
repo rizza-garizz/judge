@@ -1,6 +1,7 @@
 const assert = require("assert");
 const { spawn, spawnSync } = require("child_process");
 const fs = require("fs");
+const os = require("os");
 const path = require("path");
 
 const ROOT_DIR = path.resolve(__dirname, "..");
@@ -50,11 +51,13 @@ async function waitForHealth(baseUrl) {
 }
 
 function startServer(env) {
+  const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "hakimpintar-qa-data-"));
   const child = spawn(process.execPath, ["backend/server.js"], {
     cwd: ROOT_DIR,
     env: {
       ...process.env,
       REQUEST_LOGGING: "false",
+      DATA_DIR: dataDir,
       ...env
     },
     stdio: ["ignore", "pipe", "pipe"]
@@ -69,16 +72,23 @@ function startServer(env) {
   });
 
   child.output = () => output;
+  child.dataDir = dataDir;
   return child;
 }
 
 function stopServer(child) {
   return new Promise((resolve) => {
-    if (!child || child.exitCode !== null) {
+    const cleanup = () => {
+      if (child?.dataDir) {
+        fs.rmSync(child.dataDir, { recursive: true, force: true });
+      }
       resolve();
+    };
+    if (!child || child.exitCode !== null) {
+      cleanup();
       return;
     }
-    child.once("exit", () => resolve());
+    child.once("exit", cleanup);
     child.kill("SIGINT");
     setTimeout(() => {
       if (child.exitCode === null) child.kill("SIGTERM");
@@ -151,6 +161,7 @@ test("development backend supports core simulation lifecycle", async () => {
     assert.strictEqual(health.res.status, 200);
     assert.strictEqual(health.body.ok, true);
     assert.strictEqual(health.body.authMode, "dev");
+    assert.strictEqual(health.body.storage.schemaVersion, 1);
     assert.strictEqual(health.res.headers.get("x-frame-options"), "DENY");
     assert(health.res.headers.get("x-request-id"), "Missing request id header");
 
@@ -224,6 +235,13 @@ test("development backend supports core simulation lifecycle", async () => {
     assert.strictEqual(compliance.body.export.user?.id, userId);
     assert.strictEqual(compliance.body.export.report.finalScore, 88);
     assert(Array.isArray(compliance.body.export.auditLogs), "Compliance export should include audit logs");
+
+    const integrity = await fetchJson(`${baseUrl}/api/admin/storage/integrity`, {
+      headers: { "X-Dev-User-Id": userId }
+    });
+    assert.strictEqual(integrity.res.status, 200);
+    assert.strictEqual(integrity.body.integrity.ok, true);
+    assert.strictEqual(integrity.body.integrity.info.schemaVersion, 1);
 
     const reset = await fetchJson(`${baseUrl}/api/simulations/current`, {
       method: "DELETE",

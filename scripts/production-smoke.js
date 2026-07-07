@@ -29,6 +29,7 @@ async function main() {
   assert.strictEqual(health.res.status, 200, "/health should return 200");
   assert.strictEqual(health.body?.ok, true, "/health should return ok=true");
   assert(health.body?.service, "/health should include service name");
+  assert.strictEqual(health.body?.storage?.schemaVersion, 1, "/health should include storage schema version");
   assert(health.res.headers.get("x-request-id"), "/health should include x-request-id");
   assert.strictEqual(health.res.headers.get("x-frame-options"), "DENY");
   console.log(`ok - health ${health.body.service} ${health.body.environment}/${health.body.authMode}`);
