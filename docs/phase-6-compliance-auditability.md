@@ -6,6 +6,7 @@ Phase 6 menambahkan kontrol audit dasar agar aktivitas penting bisa ditelusuri d
 
 - Audit log untuk event penting:
   - `auth.dev-login`
+  - `access.denied`
   - `simulation.save`
   - `simulation.reset`
   - `report.view`

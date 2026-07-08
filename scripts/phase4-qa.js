@@ -214,8 +214,17 @@ test("development backend supports core simulation lifecycle", async () => {
     assert.strictEqual(report.res.status, 200);
     assert.strictEqual(report.body.report.finalScore, 88);
 
-    const audit = await fetchJson(`${baseUrl}/api/audit/current?limit=10`, {
+    const deniedAudit = await fetchJson(`${baseUrl}/api/audit/current?limit=10`, {
       headers: { "X-Dev-User-Id": userId }
+    });
+    assert.strictEqual(deniedAudit.res.status, 403);
+    assert.strictEqual(deniedAudit.body.error.requiredPermission, "audit:read");
+
+    const audit = await fetchJson(`${baseUrl}/api/audit/current?limit=10`, {
+      headers: {
+        "X-Dev-User-Id": userId,
+        "X-Dev-User-Role": "admin"
+      }
     });
     assert.strictEqual(audit.res.status, 200);
     assert(Array.isArray(audit.body.auditLogs), "Audit logs should be an array");
@@ -227,9 +236,16 @@ test("development backend supports core simulation lifecycle", async () => {
       audit.body.auditLogs.some((entry) => entry.action === "report.view"),
       "Audit logs should include report.view"
     );
+    assert(
+      audit.body.auditLogs.some((entry) => entry.action === "access.denied"),
+      "Audit logs should include access.denied"
+    );
 
     const compliance = await fetchJson(`${baseUrl}/api/compliance/export/current`, {
-      headers: { "X-Dev-User-Id": userId }
+      headers: {
+        "X-Dev-User-Id": userId,
+        "X-Dev-User-Role": "auditor"
+      }
     });
     assert.strictEqual(compliance.res.status, 200);
     assert.strictEqual(compliance.body.export.user?.id, userId);
@@ -237,11 +253,25 @@ test("development backend supports core simulation lifecycle", async () => {
     assert(Array.isArray(compliance.body.export.auditLogs), "Compliance export should include audit logs");
 
     const integrity = await fetchJson(`${baseUrl}/api/admin/storage/integrity`, {
-      headers: { "X-Dev-User-Id": userId }
+      headers: {
+        "X-Dev-User-Id": userId,
+        "X-Dev-User-Role": "admin"
+      }
     });
     assert.strictEqual(integrity.res.status, 200);
     assert.strictEqual(integrity.body.integrity.ok, true);
     assert.strictEqual(integrity.body.integrity.info.schemaVersion, 1);
+
+    const me = await fetchJson(`${baseUrl}/api/auth/me`, {
+      headers: {
+        "X-Dev-User-Id": userId,
+        "X-Dev-User-Role": "auditor"
+      }
+    });
+    assert.strictEqual(me.res.status, 200);
+    assert.strictEqual(me.body.actor.role, "auditor");
+    assert(me.body.actor.permissions.includes("audit:read"));
+    assert(me.body.permissionMatrix.admin.includes("storage:admin"));
 
     const reset = await fetchJson(`${baseUrl}/api/simulations/current`, {
       method: "DELETE",

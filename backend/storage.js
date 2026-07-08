@@ -101,7 +101,7 @@ function getUser(userId) {
 function upsertUser({ id, name, email, role }) {
   const db = readDb();
   const existing = db.users.find((user) => user.id === id);
-  const safeRole = ["admin", "penguji", "peserta"].includes(role) ? role : "peserta";
+  const safeRole = ["admin", "auditor", "penguji", "peserta"].includes(role) ? role : "peserta";
 
   if (existing) {
     existing.name = name || existing.name;
@@ -271,7 +271,7 @@ function checkIntegrity() {
   const db = readDb();
   const issues = [];
   const userIds = new Set();
-  const allowedRoles = new Set(["admin", "penguji", "peserta"]);
+  const allowedRoles = new Set(["admin", "auditor", "penguji", "peserta"]);
 
   db.users.forEach((user, index) => {
     if (!user.id) issues.push(`users[${index}] missing id`);

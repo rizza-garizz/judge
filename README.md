@@ -60,6 +60,8 @@ Fondasi data production Fase 7 tersedia di [`docs/phase-7-production-data-platfo
 npm run data:doctor
 ```
 
+Fondasi RBAC dan identity Fase 8 tersedia di [`docs/phase-8-rbac-identity.md`](docs/phase-8-rbac-identity.md). Endpoint sensitif kini dibatasi berdasarkan role dan permission.
+
 ### Opsi 1: Menjalankan Langsung (Local)
 1. *Clone* repositori ini:
    ```bash

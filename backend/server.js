@@ -37,6 +37,21 @@ const STATIC_ALLOWLIST = new Set([
   "/data.js"
 ]);
 
+const ROLE_PERMISSIONS = {
+  admin: ["simulation:write", "report:read", "audit:read", "compliance:export", "storage:admin", "user:manage"],
+  auditor: ["report:read", "audit:read", "compliance:export"],
+  penguji: ["simulation:write", "report:read"],
+  peserta: ["simulation:write", "report:read"]
+};
+
+function normalizeRole(role) {
+  return Object.prototype.hasOwnProperty.call(ROLE_PERMISSIONS, role) ? role : "peserta";
+}
+
+function hasPermission(actor, permission) {
+  return Boolean(actor?.permissions?.includes(permission));
+}
+
 function getRequestId(req) {
   const incoming = req.headers["x-request-id"];
   if (typeof incoming === "string" && incoming.length <= 80 && /^[a-zA-Z0-9._:-]+$/.test(incoming)) {
@@ -65,7 +80,7 @@ function corsHeaders(req) {
   const origin = req?.headers?.origin;
   const headers = {
     "access-control-allow-methods": "GET,POST,PUT,DELETE,OPTIONS",
-    "access-control-allow-headers": "authorization,content-type,x-dev-user-id,x-request-id",
+    "access-control-allow-headers": "authorization,content-type,x-dev-user-id,x-dev-user-role,x-user-id,x-user-role,x-request-id",
     "access-control-max-age": "600"
   };
 
@@ -152,6 +167,24 @@ function getDevUserId(req) {
   return String(userId).replace(/[^a-zA-Z0-9._@-]/g, "").slice(0, 80) || "dev-judge";
 }
 
+function sanitizeId(value, fallback) {
+  return String(value || fallback).replace(/[^a-zA-Z0-9._@-]/g, "").slice(0, 80) || fallback;
+}
+
+function getRequestActor(req) {
+  const userIdHeader = config.apiAuthMode === "dev" ? req.headers["x-dev-user-id"] : req.headers["x-user-id"];
+  const roleHeader = config.apiAuthMode === "dev" ? req.headers["x-dev-user-role"] : req.headers["x-user-role"];
+  const userId = sanitizeId(userIdHeader, getDevUserId(req));
+  const storedUser = getUser(userId);
+  const role = normalizeRole(roleHeader || storedUser?.role || "peserta");
+
+  return {
+    id: userId,
+    role,
+    permissions: ROLE_PERMISSIONS[role]
+  };
+}
+
 function isAuthorized(req) {
   if (config.apiAuthMode === "dev") return true;
 
@@ -166,6 +199,25 @@ function isAuthorized(req) {
 function requireApiAuth(req, res) {
   if (isAuthorized(req)) return true;
   sendError(req, res, 401, "Unauthorized");
+  return false;
+}
+
+function requirePermission(req, res, permission) {
+  const actor = req.actor || getRequestActor(req);
+  req.actor = actor;
+
+  if (hasPermission(actor, permission)) return true;
+
+  recordAuditLog(actor.id, "access.denied", {
+    role: actor.role,
+    permission,
+    path: req.url,
+    requestId: req.requestId
+  });
+  sendError(req, res, 403, "Forbidden", {
+    requiredPermission: permission,
+    role: actor.role
+  });
   return false;
 }
 
@@ -233,6 +285,9 @@ async function handleApi(req, res, url) {
   if (url.pathname.startsWith("/api/") && !requireApiAuth(req, res)) {
     return true;
   }
+  if (url.pathname.startsWith("/api/")) {
+    req.actor = getRequestActor(req);
+  }
 
   if (req.method === "POST" && url.pathname === "/api/auth/dev-login") {
     const body = await readBody(req);
@@ -252,21 +307,27 @@ async function handleApi(req, res, url) {
   }
 
   if (req.method === "GET" && url.pathname === "/api/auth/me") {
-    const userId = getDevUserId(req);
+    const userId = req.actor.id;
     const user = getUser(userId) || upsertUser({ id: userId, role: "peserta" });
-    sendJson(req, res, 200, { ok: true, user });
+    sendJson(req, res, 200, {
+      ok: true,
+      user,
+      actor: req.actor,
+      permissionMatrix: ROLE_PERMISSIONS
+    });
     return true;
   }
 
   if (req.method === "GET" && url.pathname === "/api/simulations/current") {
-    const userId = getDevUserId(req);
+    const userId = req.actor.id;
     const simulation = getSimulation(userId);
     sendJson(req, res, 200, { ok: true, simulation });
     return true;
   }
 
   if (req.method === "PUT" && url.pathname === "/api/simulations/current") {
-    const userId = getDevUserId(req);
+    if (!requirePermission(req, res, "simulation:write")) return true;
+    const userId = req.actor.id;
     const body = await readBody(req);
     if (!isPlainObject(body.snapshot)) {
       sendError(req, res, 400, "snapshot must be an object");
@@ -278,13 +339,15 @@ async function handleApi(req, res, url) {
   }
 
   if (req.method === "DELETE" && url.pathname === "/api/simulations/current") {
-    resetSimulation(getDevUserId(req));
+    if (!requirePermission(req, res, "simulation:write")) return true;
+    resetSimulation(req.actor.id);
     sendJson(req, res, 200, { ok: true });
     return true;
   }
 
   if (req.method === "GET" && url.pathname === "/api/reports/current") {
-    const userId = getDevUserId(req);
+    if (!requirePermission(req, res, "report:read")) return true;
+    const userId = req.actor.id;
     const report = getReport(userId);
     recordAuditLog(userId, "report.view", {
       hasReport: Boolean(report),
@@ -295,7 +358,8 @@ async function handleApi(req, res, url) {
   }
 
   if (req.method === "GET" && url.pathname === "/api/audit/current") {
-    const userId = getDevUserId(req);
+    if (!requirePermission(req, res, "audit:read")) return true;
+    const userId = req.actor.id;
     const limit = url.searchParams.get("limit") || 100;
     const auditLogs = getAuditLogs(userId, { limit });
     sendJson(req, res, 200, {
@@ -307,7 +371,8 @@ async function handleApi(req, res, url) {
   }
 
   if (req.method === "GET" && url.pathname === "/api/compliance/export/current") {
-    const userId = getDevUserId(req);
+    if (!requirePermission(req, res, "compliance:export")) return true;
+    const userId = req.actor.id;
     const exportPayload = getComplianceExport(userId);
     recordAuditLog(userId, "compliance.export", {
       requestId: req.requestId,
@@ -322,6 +387,7 @@ async function handleApi(req, res, url) {
   }
 
   if (req.method === "GET" && url.pathname === "/api/admin/storage/integrity") {
+    if (!requirePermission(req, res, "storage:admin")) return true;
     const integrity = checkIntegrity();
     sendJson(req, res, integrity.ok ? 200 : 500, {
       ok: integrity.ok,
